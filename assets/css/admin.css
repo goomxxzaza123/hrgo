@@ -1,0 +1,388 @@
+/* ==========================================================================
+   HR Management System - Admin Stylesheet (admin.css)
+   Layout: Desktop Responsive Grid with Clean Professional Sidebar
+   ========================================================================== */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 240px;
+  background-color: #FFFFFF;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 90;
+}
+
+.sidebar-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.sidebar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 12px 10px;
+  flex-grow: 1;
+}
+
+.sidebar-menu-item {
+  margin-bottom: 2px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background-color: #F1F5F9;
+  color: var(--primary-color);
+}
+
+.sidebar-link.active {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.sidebar-link .icon {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.sidebar-footer {
+  padding: 14px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .sidebar-footer {
+  background-color: #151C2C !important;
+  border-color: #2D3748 !important;
+}
+
+/* Main Content Wrapper */
+.admin-main {
+  margin-left: 240px;
+  flex-grow: 1;
+  padding: 24px 32px;
+  max-width: 1300px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.admin-header p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Stats Counter Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  border: 1px solid transparent;
+}
+
+.stat-icon.primary { background-color: var(--primary-light); color: var(--primary-color); border-color: #BFDBFE; }
+.stat-icon.success { background-color: var(--success-light); color: var(--success-color); border-color: #A7F3D0; }
+.stat-icon.warning { background-color: var(--warning-light); color: var(--warning-color); border-color: #FDE68A; }
+.stat-icon.danger  { background-color: var(--danger-light); color: var(--danger-color); border-color: #FCA5A5; }
+
+/* ==========================================================================
+   Mobile & Tablet (iPad) Responsive Adjustments for Admin
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    z-index: 2000 !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar.active {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+    padding: 16px !important;
+    width: 100% !important;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .admin-header > div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .mobile-toggle-btn {
+    display: none !important;
+  }
+  .sidebar-backdrop {
+    display: none !important;
+  }
+}
+
+/* Custom Action Dropdown Menu for Admin Tables */
+.action-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.action-dropdown-btn {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.action-dropdown-btn:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.action-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 170px;
+  z-index: 1500;
+  display: none;
+  padding: 4px 0;
+  text-align: left;
+}
+
+.action-dropdown.active .action-dropdown-menu {
+  display: block;
+}
+
+.action-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.action-dropdown-item:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.action-dropdown-item.danger {
+  color: var(--danger-color);
+}
+
+.action-dropdown-item.danger:hover {
+  background-color: var(--danger-light);
+  color: var(--danger-color);
+}
+
+.action-dropdown-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
+[data-theme="dark"] .action-dropdown-btn {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .action-dropdown-menu {
+  background-color: #151C2C !important;
+  border-color: #2D3748 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .action-dropdown-item {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .action-dropdown-item:hover {
+  background-color: #1E293B !important;
+  color: #60A5FA !important;
+}
+
+[data-theme="dark"] .action-dropdown-item.danger {
+  color: #FCA5A5 !important;
+}
+
+[data-theme="dark"] .action-dropdown-item.danger:hover {
+  background-color: #7F1D1D !important;
+  color: #FCA5A5 !important;
+}
+
+

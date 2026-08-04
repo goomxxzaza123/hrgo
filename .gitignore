@@ -1,0 +1,11 @@
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+*.log
+
+# Temp or scratch files
+*.tmp
+
+# Uploaded images (optional)
+# uploads/*
+# !uploads/.gitkeep
