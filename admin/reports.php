@@ -145,9 +145,12 @@ $departments = $stmtDepts->fetchAll();
     <div class="admin-layout">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">HR</div>
-                <div class="sidebar-title">HR GO Admin</div>
+            <div class="sidebar-header" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="sidebar-logo">HR</div>
+                    <div class="sidebar-title">HR GO Admin</div>
+                </div>
+                <a href="../logout.php" class="btn btn-danger btn-sm" style="padding:4px 10px; font-size:0.75rem; font-weight:600; flex-shrink:0;">🚪 ออกจากระบบ</a>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
@@ -207,7 +210,8 @@ $departments = $stmtDepts->fetchAll();
                     <h1>รายงานสรุปการลงเวลาเข้า-ออกงาน</h1>
                     <p style="color:var(--text-muted);">เรียกดู ค้นหา และส่งออกไฟล์รายงาน CSV สำหรับงานฝ่ายบุคคล</p>
                 </div>
-                <div style="display:flex; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <a href="../logout.php" class="btn btn-danger btn-sm mobile-toggle-btn" style="padding:6px 12px; font-size:0.8rem; font-weight:600;">🚪 ออกจากระบบ</a>
                     <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
                     <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     
