@@ -131,6 +131,12 @@ $userRole = strtoupper($currentUser['role']);
                 </div>
             </div>
 
+            <!-- Admin Page Footer -->
+            <footer class="admin-footer">
+                <p>© <?= date('Y') ?> HR GO Management System. All rights reserved.</p>
+                <p class="admin-footer-sub">ระบบบริหารจัดการทรัพยากรบุคคลและลงเวลาทำงาน (Intranet System)</p>
+            </footer>
+
         </main>
     </div>
 
