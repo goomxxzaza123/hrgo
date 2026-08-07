@@ -31,12 +31,9 @@ $deptName = $_SESSION['dept_name'] ?? 'ไม่ระบุ';
     <div class="admin-layout">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="sidebar-header" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="sidebar-logo">HR</div>
-                    <div class="sidebar-title">HR Admin</div>
-                </div>
-                <a href="../logout.php" class="btn btn-danger btn-sm" style="padding:4px 10px; font-size:0.75rem; font-weight:600; flex-shrink:0;">🚪 ออกจากระบบ</a>
+            <div class="sidebar-header">
+                <div class="sidebar-logo">HR</div>
+                <div class="sidebar-title">HR GO Admin</div>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
@@ -76,7 +73,7 @@ $deptName = $_SESSION['dept_name'] ?? 'ไม่ระบุ';
                     </a>
                 </li>
                 <?php endif; ?>
-                <li class="sidebar-menu-item" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <li class="sidebar-menu-item" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 6px;">
                     <a href="../employee_home.php" class="sidebar-link">
                         <span>สลับไปหน้าพนักงาน</span>
                     </a>
@@ -96,8 +93,7 @@ $deptName = $_SESSION['dept_name'] ?? 'ไม่ระบุ';
                     <h1>Dashboard สรุปภาพรวม HR</h1>
                     <p style="color:var(--text-muted);">ยินดีต้อนรับ <?= htmlspecialchars($userName) ?> (<?= $userRole ?> | <?= htmlspecialchars($deptName) ?>)</p>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <a href="../logout.php" class="btn btn-danger btn-sm mobile-toggle-btn" style="padding:6px 12px; font-size:0.8rem; font-weight:600;">🚪 ออกจากระบบ</a>
+                <div style="display:flex; align-items:center; gap:12px;">
                     <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
                     <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     <span class="badge badge-info"><?= date('d/m/Y') ?></span>
