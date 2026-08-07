@@ -76,7 +76,7 @@ try {
             $otHours   = ($outTs >= $otTriggerTs) ? 3.00 : 0.00;
         }
 
-        // คำนวณสายและนาทีสาย
+        // คำนวณสายและนาทีสาย (อนุโลม 59 วินาทีแรก ถ้ายังไม่ถึง 08:01:00 / 20:01:00 ถือว่าตรงเวลา)
         $lateMinutes = 0;
         if ($fullCheckIn) {
             $shiftType     = $att['shift_type'] ?? 'day';
@@ -85,7 +85,7 @@ try {
                 : ($att['shift_start_time'] ?? '08:00:00');
             $shiftStartTs  = strtotime($workDate . ' ' . $shiftStartStr);
             $checkInTs     = strtotime($fullCheckIn);
-            if ($checkInTs > $shiftStartTs) {
+            if ($checkInTs > $shiftStartTs + 59) {
                 $lateMinutes = (int)floor(($checkInTs - $shiftStartTs) / 60);
             }
         }

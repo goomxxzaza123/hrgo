@@ -122,7 +122,8 @@ try {
         $nowTs         = strtotime($nowTime);
 
         $lateMinutes = 0;
-        if ($nowTs > $shiftStartTs) {
+        // อนุโลมไม่นับว่าสายถ้าเวลาเข้างานยังไม่ถึง 08:01:00 หรือ 20:01:00 (เช่น 08:00:59 ลงมา ถือว่าตรงเวลา)
+        if ($nowTs > $shiftStartTs + 59) {
             $status = 'late';
             $lateMinutes = (int)floor(($nowTs - $shiftStartTs) / 60);
         } else {
