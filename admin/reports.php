@@ -705,7 +705,13 @@ $departments = $stmtDepts->fetchAll();
                             label = `${r.emp_code}: OT ${r.ot_hours}ชม.`;
                         } else if (r.status === 'late') {
                             bCls = 'late';
-                            label = `${r.emp_code}: สาย (${r.late_minutes}น.)`;
+                            let lateText = `${r.late_minutes}น.`;
+                            if (r.late_minutes >= 60) {
+                                const h = Math.floor(r.late_minutes / 60);
+                                const m = r.late_minutes % 60;
+                                lateText = m > 0 ? `${h}ชม. ${m}น.` : `${h}ชม.`;
+                            }
+                            label = `${r.emp_code}: สาย (${lateText})`;
                         } else {
                             bCls = 'on-time';
                             label = `${r.emp_code}: ตรงเวลา`;

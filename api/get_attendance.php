@@ -104,7 +104,7 @@ try {
             'status'          => $row['status'],
             'status_label'    => ($row['status'] === 'on_time' || $row['status'] === 'normal') 
                 ? 'ตรงเวลา' 
-                : (($row['status'] === 'late') ? ($lateMins > 0 ? "สาย ({$lateMins} นาที)" : "สาย") : 'ขาดงาน')
+                : (($row['status'] === 'late') ? formatLateText($lateMins) : 'ขาดงาน')
         ];
     }, $historyRecords);
 
@@ -133,7 +133,7 @@ try {
             'status'            => $todayRecord['status'],
             'status_label'      => ($todayRecord['status'] === 'on_time' || $todayRecord['status'] === 'normal') 
                 ? 'ตรงเวลา' 
-                : (($todayRecord['late_minutes'] ?? 0) > 0 ? "สาย ({$todayRecord['late_minutes']} นาที)" : "สาย")
+                : formatLateText($todayRecord['late_minutes'] ?? 0)
         ] : null,
         'summary'       => [
             'total_records'      => count($historyRecords),

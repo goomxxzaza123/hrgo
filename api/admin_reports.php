@@ -246,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         ? "ทำงาน ({$holidayInfo['name']})"
                         : ($isSunday 
                             ? ($otH > 0 ? "OT วันหยุด ({$otH} ชม.)" : 'ตรงเวลา (วันหยุด)') 
-                            : ($isOnTime ? 'ตรงเวลา' : ($lateMins > 0 ? "สาย ({$lateMins} นาที)" : "สาย")));
+                            : ($isOnTime ? 'ตรงเวลา' : formatLateText($lateMins)));
 
                     $formatted[] = [
                         'attendance_id'   => $ar['attendance_id'],
@@ -552,7 +552,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 <td><?= htmlspecialchars($rec['check_out_time']) ?></td>
                 <td><?= number_format($workH, 2) ?></td>
                 <td><?= number_format($otH, 2) ?></td>
-                <td><?= $lMins > 0 ? "{$lMins} นาที" : '-' ?></td>
+                <td><?php 
+                    if ($lMins <= 0) echo '-';
+                    elseif ($lMins < 60) echo "{$lMins} นาที";
+                    else {
+                        $h = floor($lMins / 60);
+                        $m = $lMins % 60;
+                        echo $m > 0 ? "{$h} ชม. {$m} นาที" : "{$h} ชม.";
+                    }
+                ?></td>
                 <td><b><?= htmlspecialchars($rec['status_label']) ?></b></td>
             </tr>
             <?php endforeach; ?>
@@ -563,6 +571,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if ($empLeaveBreakdown['personal'] > 0) $lParts[] = "กิจ {$empLeaveBreakdown['personal']} วัน";
             if ($empLeaveBreakdown['vacation'] > 0) $lParts[] = "พักร้อน {$empLeaveBreakdown['vacation']} วัน";
             $leaveStr = !empty($lParts) ? implode(', ', $lParts) : '0 วัน';
+
+            $totalLateText = '0 นาที';
+            if ($totalLate > 0) {
+                if ($totalLate < 60) {
+                    $totalLateText = "{$totalLate} นาที";
+                } else {
+                    $hTotal = floor($totalLate / 60);
+                    $mTotal = $totalLate % 60;
+                    $totalLateText = $mTotal > 0 ? "{$hTotal} ชม. {$mTotal} นาที" : "{$hTotal} ชม.";
+                }
+            }
             ?>
             <tr class="summary-box">
                 <td colspan="9">
@@ -571,7 +590,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     วันลา: <?= $empLeaveCnt ?> วัน (<?= $leaveStr ?>) | 
                     รวมชั่วโมงทำงาน: <?= number_format($totalWork, 2) ?> ชม. | 
                     รวมเวลา OT: <?= number_format($totalOt, 2) ?> ชม. | 
-                    รวมเวลาสาย: <?= $totalLate ?> นาที
+                    รวมเวลาสาย: <?= $totalLateText ?>
                 </td>
             </tr>
         </tbody>

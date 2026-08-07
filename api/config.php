@@ -184,3 +184,24 @@ function isAllowedOfficeIP(string $ip): bool {
     }
     return false;
 }
+
+/**
+ * แปลงนาทีสายให้อ่านง่าย (เช่น 45 นาที -> สาย (45 นาที), 137 นาที -> สาย (2 ชม. 17 นาที), 120 นาที -> สาย (2 ชม.))
+ * @param int $mins
+ * @return string
+ */
+function formatLateText($mins) {
+    $mins = (int)$mins;
+    if ($mins <= 0) return 'สาย';
+    if ($mins < 60) {
+        return "สาย ({$mins} นาที)";
+    }
+    $hours = (int)floor($mins / 60);
+    $remMins = $mins % 60;
+    if ($remMins > 0) {
+        return "สาย ({$hours} ชม. {$remMins} นาที)";
+    } else {
+        return "สาย ({$hours} ชม.)";
+    }
+}
+

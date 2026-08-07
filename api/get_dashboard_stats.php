@@ -92,7 +92,7 @@ try {
             'check_out_photo' => $row['check_out_photo'],
             'late_minutes'    => $lateMins,
             'status'          => $row['status'],
-            'status_label'    => ($row['status'] === 'on_time') ? 'ตรงเวลา' : ($lateMins > 0 ? "สาย ({$lateMins} นาที)" : "สาย")
+            'status_label'    => ($row['status'] === 'on_time') ? 'ตรงเวลา' : formatLateText($lateMins)
         ];
     }, $recentLog);
 
