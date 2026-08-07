@@ -18,6 +18,8 @@ $userName = $currentUser['name'];
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core & Admin CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
@@ -64,50 +66,58 @@ $userName = $currentUser['name'];
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
                     <a href="dashboard.php" class="sidebar-link">
+                        <i class="fa-solid fa-chart-pie icon"></i>
                         <span>ภาพรวมองค์กร</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="approve_leave.php" class="sidebar-link">
+                        <i class="fa-solid fa-file-circle-check icon"></i>
                         <span>อนุมัติใบลา</span>
                     </a>
                 </li>
                 <?php if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'manager'): ?>
                 <li class="sidebar-menu-item">
                     <a href="manage_users.php" class="sidebar-link">
+                        <i class="fa-solid fa-users-gear icon"></i>
                         <span>จัดการพนักงาน</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_departments.php" class="sidebar-link">
+                        <i class="fa-solid fa-sitemap icon"></i>
                         <span>จัดการแผนก</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="reports.php" class="sidebar-link">
+                        <i class="fa-solid fa-file-csv icon"></i>
                         <span>รายงานลงเวลา & CSV</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_holidays.php" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-day icon"></i>
                         <span>วันหยุดบริษัท</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_settings.php" class="sidebar-link active">
+                        <i class="fa-solid fa-location-crosshairs icon"></i>
                         <span>ตั้งค่าพิกัด & รัศมี</span>
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="sidebar-menu-item" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 6px;">
                     <a href="../employee_home.php" class="sidebar-link">
+                        <i class="fa-solid fa-user-gear icon"></i>
                         <span>สลับไปหน้าพนักงาน</span>
                     </a>
                 </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="../logout.php" class="btn btn-danger btn-sm" style="width: 100%;">
-                    ออกจากระบบ
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                 </a>
             </div>
         </aside>
@@ -132,7 +142,7 @@ $userName = $currentUser['name'];
                     <!-- 1. ตั้งค่ารัศมีอนุญาต -->
                     <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
                         <h3 style="font-size:1.1rem; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                            📏 รัศมีอนุญาตให้ลงเวลาเข้างาน (เมตร)
+                            <i class="fa-solid fa-ruler-combined"></i> รัศมีอนุญาตให้ลงเวลาเข้างาน (เมตร)
                         </h3>
                         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
                             พนักงานต้องอยู่ในระยะไม่เกินจำนวนเมตรที่กำหนด จึงจะกดลงเวลาได้
@@ -157,10 +167,10 @@ $userName = $currentUser['name'];
                     <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                             <h3 style="font-size:1.1rem; display:flex; align-items:center; gap:8px;">
-                                📍 พิกัดออฟฟิศบริษัท (Company HQ)
+                                <i class="fa-solid fa-location-dot"></i> พิกัดออฟฟิศบริษัท (Company HQ)
                             </h3>
                             <button type="button" class="btn btn-outline btn-sm" onclick="useMyCurrentLocation()">
-                                🎯 ใช้พิกัดปัจจุบันของฉัน
+                                <i class="fa-solid fa-crosshairs"></i> ใช้พิกัดปัจจุบันของฉัน
                             </button>
                         </div>
                         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
@@ -181,7 +191,7 @@ $userName = $currentUser['name'];
 
                     <!-- 3. สวิตช์เปิด/ปิดระบบตรวจความปลอดภัย -->
                     <div style="margin-bottom: 24px;">
-                        <h3 style="font-size:1.1rem; margin-bottom:12px;">🔒 ตัวเลือกเปิด/ปิดการเช็คความปลอดภัย</h3>
+                        <h3 style="font-size:1.1rem; margin-bottom:12px;"><i class="fa-solid fa-shield-halved"></i> ตัวเลือกเปิด/ปิดการเช็คความปลอดภัย</h3>
                         
                         <div style="margin-bottom: 10px;">
                             <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
@@ -199,7 +209,7 @@ $userName = $currentUser['name'];
                     </div>
 
                     <button type="submit" id="saveBtn" class="btn btn-primary">
-                        💾 บันทึกการตั้งค่า
+                        <i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า
                     </button>
                 </form>
             </div>
@@ -207,7 +217,7 @@ $userName = $currentUser['name'];
             <!-- Card 2: บริหารจัดการพื้นที่รูปถ่ายเซลฟี่ (Photo Storage Cleanup) -->
             <div class="card" style="max-width: 650px; margin-top: 24px;">
                 <h3 style="font-size:1.1rem; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                    🗑️ บริหารจัดการพื้นที่จัดเก็บรูปถ่าย (Photo Storage Cleanup)
+                    <i class="fa-solid fa-hard-drive"></i> บริหารจัดการพื้นที่จัดเก็บรูปถ่าย (Photo Storage Cleanup)
                 </h3>
                 <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
                     สรุปพื้นที่จัดเก็บรูปถ่ายและเครื่องมือลบรูปเก่าตามอายุ retention เพื่อประหยัดดิสก์
@@ -237,7 +247,7 @@ $userName = $currentUser['name'];
                         </select>
                     </div>
                     <button type="submit" id="cleanBtn" class="btn btn-outline" style="border-color:#E74C3C; color:#E74C3C;">
-                        🗑️ เคลียร์ไฟล์รูปภาพเก่า
+                        <i class="fa-solid fa-trash-can"></i> เคลียร์ไฟล์รูปภาพเก่า
                     </button>
                 </form>
             </div>

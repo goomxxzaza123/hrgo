@@ -23,6 +23,8 @@ $departments = $stmtDepts->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core & Admin CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
@@ -152,50 +154,58 @@ $departments = $stmtDepts->fetchAll();
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
                     <a href="dashboard.php" class="sidebar-link">
+                        <i class="fa-solid fa-chart-pie icon"></i>
                         <span>ภาพรวมองค์กร</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="approve_leave.php" class="sidebar-link">
+                        <i class="fa-solid fa-file-circle-check icon"></i>
                         <span>อนุมัติใบลา</span>
                     </a>
                 </li>
                 <?php if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'manager'): ?>
                 <li class="sidebar-menu-item">
                     <a href="manage_users.php" class="sidebar-link">
+                        <i class="fa-solid fa-users-gear icon"></i>
                         <span>จัดการพนักงาน</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_departments.php" class="sidebar-link">
+                        <i class="fa-solid fa-sitemap icon"></i>
                         <span>จัดการแผนก</span>
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="sidebar-menu-item">
                     <a href="reports.php" class="sidebar-link active">
+                        <i class="fa-solid fa-file-csv icon"></i>
                         <span>รายงานลงเวลา & CSV</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_holidays.php" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-day icon"></i>
                         <span>วันหยุดบริษัท</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_settings.php" class="sidebar-link">
+                        <i class="fa-solid fa-location-crosshairs icon"></i>
                         <span>ตั้งค่าพิกัด & รัศมี</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 6px;">
                     <a href="../employee_home.php" class="sidebar-link">
+                        <i class="fa-solid fa-user-gear icon"></i>
                         <span>สลับไปหน้าพนักงาน</span>
                     </a>
                 </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="../logout.php" class="btn btn-danger btn-sm" style="width: 100%;">
-                    ออกจากระบบ
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                 </a>
             </div>
         </aside>
@@ -214,12 +224,12 @@ $departments = $stmtDepts->fetchAll();
                     <!-- Dropdown ปุ่มส่งออกรายงาน Excel -->
                     <div class="dropdown" style="position: relative; display: inline-block;">
                         <button type="button" class="btn btn-success" id="exportDropdownBtn" onclick="toggleExportMenu(event)" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:9px 16px; border-radius:10px;">
-                            <span>ส่งออกรายงาน Excel (CSV)</span>
+                            <i class="fa-solid fa-file-excel"></i> <span>ส่งออกรายงาน Excel (CSV)</span>
                             <span style="font-size:0.75rem; transition: transform 0.2s;" id="exportDropdownArrow">▼</span>
                         </button>
                         <div id="exportDropdownMenu" style="display:none; position:absolute; right:0; top:calc(100% + 6px); background:var(--card-bg, #1E293B); border:1px solid var(--border-color, #334155); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.4); z-index:1000; min-width:260px; padding:6px;">
                             <a href="javascript:void(0)" onclick="exportReportAllCsv()" style="display:flex; align-items:center; gap:10px; padding:10px 14px; color:var(--text-main, #F8FAFC); border-radius:8px; text-decoration:none; font-size:0.88rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='transparent'">
-                                <span style="font-size:1.2rem;">📊</span>
+                                <i class="fa-solid fa-users-line" style="font-size:1.2rem; color:#10B981;"></i>
                                 <div>
                                     <div style="font-weight:600;">ส่งออกรายงานพนักงานทุกคน</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted, #94A3B8);">รวมข้อมูลพนักงานทุกคนทุกแผนก</div>
@@ -227,7 +237,7 @@ $departments = $stmtDepts->fetchAll();
                             </a>
                             <div style="height:1px; background:var(--border-color, #334155); margin:4px 0;"></div>
                             <a href="javascript:void(0)" onclick="exportReportIndividualCsv()" style="display:flex; align-items:center; gap:10px; padding:10px 14px; color:var(--text-main, #F8FAFC); border-radius:8px; text-decoration:none; font-size:0.88rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='transparent'">
-                                <span style="font-size:1.2rem;">👤</span>
+                                <i class="fa-solid fa-user-check" style="font-size:1.2rem; color:#3B82F6;"></i>
                                 <div>
                                     <div style="font-weight:600;">ส่งออกรายงานรายบุคคล (Excel)</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted, #94A3B8);">ส่งออก Excel เฉพาะพนักงานที่ระบุ</div>
@@ -235,7 +245,7 @@ $departments = $stmtDepts->fetchAll();
                             </a>
                             <div style="height:1px; background:var(--border-color, #334155); margin:4px 0;"></div>
                             <a href="javascript:void(0)" onclick="printIndividualReportPdf()" style="display:flex; align-items:center; gap:10px; padding:10px 14px; color:var(--text-main, #F8FAFC); border-radius:8px; text-decoration:none; font-size:0.88rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='transparent'">
-                                <span style="font-size:1.2rem;">🖨️</span>
+                                <i class="fa-solid fa-print" style="font-size:1.2rem; color:#F59E0B;"></i>
                                 <div>
                                     <div style="font-weight:600;">พิมพ์ / บันทึก PDF (รายบุคคล 1 หน้าจบ)</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted, #94A3B8);">แสดงหน้าเอกสารเต็มแบบ 1 หน้า A4 เข้าเล่ม/เซฟ PDF</div>
@@ -285,7 +295,7 @@ $departments = $stmtDepts->fetchAll();
                         </div>
                         <div>
                             <button type="submit" class="btn btn-primary" style="width:100%;">
-                                🔍 ค้นหา
+                                <i class="fa-solid fa-magnifying-glass"></i> ค้นหา
                             </button>
                         </div>
                     </div>
@@ -299,28 +309,28 @@ $departments = $stmtDepts->fetchAll();
                         <span class="stat-label">รวมบันทึกทั้งหมด (ครั้ง)</span>
                         <span class="stat-value" id="reportTotal">0</span>
                     </div>
-                    <div class="stat-icon primary"></div>
+                    <div class="stat-icon primary"><i class="fa-solid fa-list-check"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
                         <span class="stat-label">ตรงเวลา (ครั้ง)</span>
                         <span class="stat-value" id="reportOnTime">0</span>
                     </div>
-                    <div class="stat-icon success"></div>
+                    <div class="stat-icon success"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
                         <span class="stat-label">สาย (ครั้ง)</span>
                         <span class="stat-value" id="reportLate">0</span>
                     </div>
-                    <div class="stat-icon warning"></div>
+                    <div class="stat-icon warning"><i class="fa-solid fa-clock"></i></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
                         <span class="stat-label">วันลา (ครั้ง)</span>
                         <span class="stat-value" id="reportLeave">0</span>
                     </div>
-                    <div class="stat-icon info"></div>
+                    <div class="stat-icon info"><i class="fa-solid fa-calendar-minus"></i></div>
                 </div>
             </div>
 
@@ -330,10 +340,10 @@ $departments = $stmtDepts->fetchAll();
                     <h3 style="margin:0; font-size:1.1rem; color:var(--text-color);">การแสดงผลข้อมูล</h3>
                     <div class="report-tab-switcher">
                         <button type="button" id="btnViewCalendar" class="btn btn-sm btn-primary" style="padding:6px 16px; border-radius:6px;" onclick="switchReportView('calendar')">
-                            📅 มุมมองปฏิทิน (Calendar View)
+                            <i class="fa-solid fa-calendar-days"></i> มุมมองปฏิทิน (Calendar View)
                         </button>
                         <button type="button" id="btnViewTable" class="btn btn-sm" style="padding:6px 16px; border-radius:6px; background:transparent; color:var(--text-muted);" onclick="switchReportView('table')">
-                            📋 มุมมองตาราง (Table View)
+                            <i class="fa-solid fa-table-list"></i> มุมมองตาราง (Table View)
                         </button>
                     </div>
                 </div>

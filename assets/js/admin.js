@@ -74,7 +74,7 @@ function renderRecentAttendanceLog(logs) {
     logs.forEach(log => {
         const badgeClass = (log.status === 'on_time') ? 'badge-success' : 'badge-warning';
         const shiftBadgeClass = (log.shift_type === 'night') ? 'badge-info' : 'badge-outline';
-        const shiftText = log.shift_label || (log.shift_type === 'night' ? '🌙 กลางคืน' : '☀️ กลางวัน');
+        const shiftText = log.shift_label || (log.shift_type === 'night' ? '<i class="fa-solid fa-moon"></i> กลางคืน' : '<i class="fa-solid fa-sun"></i> กลางวัน');
 
         const inPhotoBtn = log.check_in_photo 
             ? `<button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:0.75rem;" onclick="viewPhoto('${log.check_in_photo}', 'รูปเข้างาน: ${escapeHtml(log.employee_name)}')">รูปเข้างาน</button>` 
@@ -149,10 +149,10 @@ async function loadLeaveApprovals(statusFilter = '') {
             if (item.status === 'pending') {
                 actionButtons = `
                     <button class="btn btn-success btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'approve')">
-                        อนุมัติ
+                        <i class="fa-solid fa-check"></i> อนุมัติ
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'reject')">
-                        ปฏิเสธ
+                        <i class="fa-solid fa-xmark"></i> ปฏิเสธ
                     </button>
                 `;
             }
@@ -275,21 +275,21 @@ async function loadManageUsers() {
                     <td>
                         <div class="action-dropdown">
                             <button type="button" class="action-dropdown-btn" onclick="toggleActionDropdown(this, event)">
-                                ⚙️ จัดการ ▾
+                                <i class="fa-solid fa-gear"></i> จัดการ <i class="fa-solid fa-chevron-down" style="font-size:0.7rem;"></i>
                             </button>
                             <div class="action-dropdown-menu">
                                 <a class="action-dropdown-item" onclick='openEditUserModal(${userJson})'>
-                                    <span>✏️</span> แก้ไขข้อมูลส่วนตัว
+                                    <i class="fa-solid fa-pen-to-square" style="color:#2563EB;"></i> แก้ไขข้อมูลส่วนตัว
                                 </a>
                                 <a class="action-dropdown-item" onclick="openShiftModal(${u.user_id}, '${escapeHtml(u.name)}', '${u.shift_type}')">
-                                    <span>⏰</span> ปรับกะทำงาน & OT
+                                    <i class="fa-solid fa-clock" style="color:#F59E0B;"></i> ปรับกะทำงาน & OT
                                 </a>
                                 <a class="action-dropdown-item" onclick="openQuotaModal(${u.user_id}, '${escapeHtml(u.name)}', ${u.balances.sick?.total_quota || 30}, ${u.balances.personal?.total_quota || 6}, ${u.balances.vacation?.total_quota || 10})">
-                                    <span>📅</span> ตั้งค่าโควตาวันลา
+                                    <i class="fa-solid fa-calendar-check" style="color:#10B981;"></i> ตั้งค่าโควตาวันลา
                                 </a>
                                 <div class="action-dropdown-divider"></div>
                                 <a class="action-dropdown-item danger" onclick="deleteUser(${u.user_id}, '${escapeHtml(u.name)}')">
-                                    <span>🗑️</span> ลบรายชื่อพนักงาน
+                                    <i class="fa-solid fa-trash-can" style="color:#EF4444;"></i> ลบรายชื่อพนักงาน
                                 </a>
                             </div>
                         </div>

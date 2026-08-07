@@ -24,6 +24,8 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Theme Manager -->
@@ -74,7 +76,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
             <!-- อัปโหลดรูปโปรไฟล์เฉพาะ Admin และ Manager -->
             <div class="upload-box" style="margin-top: 16px; max-width:360px; margin-left:auto; margin-right:auto;">
                 <label class="upload-box-title">
-                    อัปโหลดรูปโปรไฟล์ส่วนตัว (Admin/Manager Only)
+                    <i class="fa-solid fa-camera"></i> อัปโหลดรูปโปรไฟล์ส่วนตัว (Admin/Manager Only)
                 </label>
                 <input type="file" id="self_avatar_file" class="form-control" accept="image/jpeg,image/png,image/webp" style="font-size:0.8rem;" onchange="handleSelfAvatarUpload(this)">
             </div>
@@ -88,7 +90,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card 1: ข้อมูลโปรไฟล์ -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">แก้ไขข้อมูลส่วนตัว</div>
+                <div class="card-title"><i class="fa-solid fa-user-pen"></i> แก้ไขข้อมูลส่วนตัว</div>
             </div>
             <form id="profileNameForm" onsubmit="handleUpdateName(event)">
                 <div class="form-group">
@@ -100,7 +102,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                     <input type="tel" id="edit_phone" class="form-control" placeholder="เช่น 081-234-5678">
                 </div>
                 <button type="submit" id="saveNameBtn" class="btn btn-primary">
-                    บันทึกข้อมูลส่วนตัว
+                    <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลส่วนตัว
                 </button>
             </form>
         </div>
@@ -108,7 +110,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card 2: เปลี่ยนรหัสผ่าน -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">เปลี่ยนรหัสผ่าน</div>
+                <div class="card-title"><i class="fa-solid fa-lock"></i> เปลี่ยนรหัสผ่าน</div>
             </div>
             <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
                 <div class="form-group">
@@ -124,7 +126,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                     <input type="password" id="confirm_password" class="form-control" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" required minlength="6">
                 </div>
                 <button type="submit" id="savePassBtn" class="btn btn-primary">
-                    เปลี่ยนรหัสผ่าน
+                    <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
                 </button>
             </form>
         </div>
@@ -134,20 +136,25 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <!-- Bottom Mobile Navigation Bar -->
     <nav class="bottom-nav">
         <a href="employee_home.php" class="nav-item">
+            <i class="fa-solid fa-clock"></i>
             <span>ลงเวลา</span>
         </a>
         <a href="leave_form.php" class="nav-item">
+            <i class="fa-solid fa-calendar-plus"></i>
             <span>ยื่นลางาน</span>
         </a>
         <a href="profile.php" class="nav-item active">
+            <i class="fa-solid fa-user"></i>
             <span>โปรไฟล์</span>
         </a>
         <?php if ($userRole === 'admin' || $userRole === 'manager'): ?>
         <a href="admin/dashboard.php" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i>
             <span>จัดการระบบ</span>
         </a>
         <?php endif; ?>
         <a href="javascript:void(0)" onclick="handleLogout()" class="nav-item">
+            <i class="fa-solid fa-right-from-bracket"></i>
             <span>ออกระบบ</span>
         </a>
     </nav>

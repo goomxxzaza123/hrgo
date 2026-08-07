@@ -24,6 +24,8 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Theme Manager -->
@@ -54,7 +56,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <div class="container">
 
         <!-- Section: สรุปโควตาวันลาคงเหลือ -->
-        <h2 style="font-size:1.1rem; margin-bottom:12px;">โควตาวันลาคงเหลือปีนี้</h2>
+        <h2 style="font-size:1.1rem; margin-bottom:12px;"><i class="fa-solid fa-calendar-check"></i> โควตาวันลาคงเหลือปีนี้</h2>
         <div class="quota-grid" id="leaveBalancesGrid">
             <div class="quota-card">
                 <div class="quota-title">กำลังโหลด...</div>
@@ -64,7 +66,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card: ฟอร์มยื่นคำขอลางาน -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">แบบฟอร์มยื่นขอลางาน</div>
+                <div class="card-title"><i class="fa-solid fa-file-signature"></i> แบบฟอร์มยื่นขอลางาน</div>
             </div>
 
             <form id="leaveForm">
@@ -100,7 +102,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                 </div>
 
                 <button type="submit" id="leaveSubmitBtn" class="btn btn-primary" style="margin-top: 6px;">
-                    ส่งคำขอลางาน
+                    <i class="fa-solid fa-paper-plane"></i> ส่งคำขอลางาน
                 </button>
             </form>
         </div>
@@ -108,7 +110,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card: ประวัติคำขอลางาน -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">ประวัติคำขอลางานของฉัน</div>
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติคำขอลางานของฉัน</div>
             </div>
             <div class="table-responsive">
                 <table class="table">
@@ -137,20 +139,25 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <!-- Bottom Mobile Navigation Bar -->
     <nav class="bottom-nav">
         <a href="employee_home.php" class="nav-item">
+            <i class="fa-solid fa-clock"></i>
             <span>ลงเวลา</span>
         </a>
         <a href="leave_form.php" class="nav-item active">
+            <i class="fa-solid fa-calendar-plus"></i>
             <span>ยื่นลางาน</span>
         </a>
         <a href="profile.php" class="nav-item">
+            <i class="fa-solid fa-user"></i>
             <span>โปรไฟล์</span>
         </a>
         <?php if ($userRole === 'admin' || $userRole === 'manager'): ?>
         <a href="admin/dashboard.php" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i>
             <span>จัดการระบบ</span>
         </a>
         <?php endif; ?>
         <a href="javascript:void(0)" onclick="handleLogout()" class="nav-item">
+            <i class="fa-solid fa-right-from-bracket"></i>
             <span>ออกระบบ</span>
         </a>
     </nav>

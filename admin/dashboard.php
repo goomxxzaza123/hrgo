@@ -20,6 +20,8 @@ $deptName = $_SESSION['dept_name'] ?? 'ไม่ระบุ';
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core & Admin CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
@@ -38,50 +40,58 @@ $deptName = $_SESSION['dept_name'] ?? 'ไม่ระบุ';
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
                     <a href="dashboard.php" class="sidebar-link active">
+                        <i class="fa-solid fa-chart-pie icon"></i>
                         <span>ภาพรวมองค์กร</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="approve_leave.php" class="sidebar-link">
+                        <i class="fa-solid fa-file-circle-check icon"></i>
                         <span>อนุมัติใบลา</span>
                     </a>
                 </li>
                 <?php if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'manager'): ?>
                 <li class="sidebar-menu-item">
                     <a href="manage_users.php" class="sidebar-link">
+                        <i class="fa-solid fa-users-gear icon"></i>
                         <span>จัดการพนักงาน</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_departments.php" class="sidebar-link">
+                        <i class="fa-solid fa-sitemap icon"></i>
                         <span>จัดการแผนก</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="reports.php" class="sidebar-link">
+                        <i class="fa-solid fa-file-csv icon"></i>
                         <span>รายงานลงเวลา & CSV</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_holidays.php" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-day icon"></i>
                         <span>วันหยุดบริษัท</span>
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
                     <a href="manage_settings.php" class="sidebar-link">
+                        <i class="fa-solid fa-location-crosshairs icon"></i>
                         <span>ตั้งค่าพิกัด & รัศมี</span>
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="sidebar-menu-item" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 6px;">
                     <a href="../employee_home.php" class="sidebar-link">
+                        <i class="fa-solid fa-user-gear icon"></i>
                         <span>สลับไปหน้าพนักงาน</span>
                     </a>
                 </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="../logout.php" class="btn btn-danger btn-sm" style="width: 100%;">
-                    ออกจากระบบ
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                 </a>
             </div>
         </aside>

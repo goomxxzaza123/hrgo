@@ -31,6 +31,8 @@ if (isset($_SESSION['user_id'])) {
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Theme Manager -->
@@ -59,16 +61,17 @@ if (isset($_SESSION['user_id'])) {
             margin-bottom: 28px;
         }
         .login-logo {
-            width: 56px;
-            height: 56px;
-            background-color: var(--primary-light);
-            color: var(--primary-color);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: #FFFFFF;
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             margin: 0 auto 16px auto;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         }
         .login-title {
             font-size: 1.5rem;
@@ -122,7 +125,7 @@ if (isset($_SESSION['user_id'])) {
             <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
         </div>
         <div class="login-header">
-            <div class="login-logo">🏢</div>
+            <div class="login-logo"><i class="fa-solid fa-building-user"></i></div>
             <h1 class="login-title">HR GO System</h1>
             <p class="login-subtitle">ระบบลงเวลาและบริหารจัดการทรัพยากรบุคคล</p>
         </div>
@@ -154,14 +157,14 @@ if (isset($_SESSION['user_id'])) {
                 >
             </div>
 
-            <button type="submit" id="submitBtn" class="btn btn-primary" style="margin-top: 10px;">
-                เข้าสู่ระบบ (Sign In)
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="margin-top: 10px; width: 100%;">
+                <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ (Sign In)
             </button>
         </form>
 
         <!-- Quick Fill Helper สำหรับการทดสอบระบบ -->
         <div class="demo-box">
-            <div class="demo-title" style="font-weight:600; color:var(--text-main); margin-bottom:10px;">🔑 เลือกบัญชีเพื่อทดสอบเข้าสู่ระบบ (รหัสผ่าน: 123456)</div>
+            <div class="demo-title" style="font-weight:600; color:var(--text-main); margin-bottom:10px;"><i class="fa-solid fa-key" style="color:var(--primary-color);"></i> เลือกบัญชีเพื่อทดสอบเข้าสู่ระบบ (รหัสผ่าน: 123456)</div>
             <div class="demo-buttons" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
                 <button type="button" class="demo-btn" onclick="fillDemoAccount('EMP001')" style="grid-column: span 2; background:rgba(37, 99, 235, 0.1); border-color:var(--primary-color);">
                     <strong>EMP001 - สมชาย วงศ์สวัสดิ์</strong><br><small style="color:var(--primary-color); font-weight:600;">(Admin | แผนก HR)</small>

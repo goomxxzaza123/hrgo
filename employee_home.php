@@ -24,6 +24,8 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Core CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Theme Manager -->
@@ -76,7 +78,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
             <!-- ปุ่มลงเวลาเข้า-ออกงานแบบ 2 ปุ่ม (Check In & Check Out) -->
             <div class="check-in-grid">
                 <button type="button" id="checkInBtn" class="btn btn-checkin">
-                    <div class="btn-checkin-icon">☀️</div>
+                    <div class="btn-checkin-icon"><i class="fa-solid fa-sun"></i></div>
                     <div>
                         <div class="btn-checkin-title">บันทึกเวลาเข้างาน</div>
                         <div class="btn-checkin-sub">Check In</div>
@@ -84,7 +86,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                 </button>
 
                 <button type="button" id="checkOutBtn" class="btn btn-checkout" disabled>
-                    <div class="btn-checkin-icon">🌙</div>
+                    <div class="btn-checkin-icon"><i class="fa-solid fa-moon"></i></div>
                     <div>
                         <div class="btn-checkin-title">บันทึกเวลาออกงาน</div>
                         <div class="btn-checkin-sub">Check Out</div>
@@ -191,7 +193,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <div class="modal-backdrop" id="cameraModal">
         <div class="modal-content" style="max-width: 420px; text-align: center; border-radius: 20px; padding: 24px;">
             <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 14px;">
-                <h3 id="cameraModalTitle" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--text-main);">📸 สแกนใบหน้าลงเวลา</h3>
+                <h3 id="cameraModalTitle" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--text-main);"><i class="fa-solid fa-camera"></i> สแกนใบหน้าลงเวลา</h3>
                 <button type="button" onclick="closeCameraModal()" style="border:none; background:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
 
@@ -217,14 +219,14 @@ $empCode  = $_SESSION['emp_code'] ?? '';
 
             <div id="cameraFallbackBtnContainer" style="display: none; margin-bottom: 16px;">
                 <button type="button" class="btn btn-outline" style="width: 100%; border-color: var(--primary-color); color: var(--primary-color); font-weight: 600; padding: 10px;" onclick="triggerMobileCamera()">
-                    📷 แตะเพื่อถ่ายรูปด้วยกล้องมือถือ
+                    <i class="fa-solid fa-camera"></i> แตะเพื่อถ่ายรูปด้วยกล้องมือถือ
                 </button>
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: center;">
                 <button type="button" class="btn btn-outline" onclick="closeCameraModal()" style="width: 38%; font-weight: 600;">ยกเลิก</button>
                 <button type="button" id="captureSubmitBtn" class="btn camera-btn-capture" style="width: 58%;">
-                    📸 สแกน & บันทึกเวลา
+                    <i class="fa-solid fa-camera-retro"></i> สแกน & บันทึกเวลา
                 </button>
             </div>
         </div>
@@ -233,20 +235,25 @@ $empCode  = $_SESSION['emp_code'] ?? '';
     <!-- Bottom Mobile Navigation Bar -->
     <nav class="bottom-nav">
         <a href="employee_home.php" class="nav-item active">
+            <i class="fa-solid fa-clock"></i>
             <span>ลงเวลา</span>
         </a>
         <a href="leave_form.php" class="nav-item">
+            <i class="fa-solid fa-calendar-plus"></i>
             <span>ยื่นลางาน</span>
         </a>
         <a href="profile.php" class="nav-item">
+            <i class="fa-solid fa-user"></i>
             <span>โปรไฟล์</span>
         </a>
         <?php if ($userRole === 'admin' || $userRole === 'manager'): ?>
         <a href="admin/dashboard.php" class="nav-item">
+            <i class="fa-solid fa-user-shield"></i>
             <span>จัดการระบบ</span>
         </a>
         <?php endif; ?>
         <a href="javascript:void(0)" onclick="handleLogout()" class="nav-item">
+            <i class="fa-solid fa-right-from-bracket"></i>
             <span>ออกระบบ</span>
         </a>
     </nav>
