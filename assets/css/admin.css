@@ -1,6 +1,6 @@
 /* ==========================================================================
    HR Management System - Admin Stylesheet (admin.css)
-   Layout: Desktop Responsive Grid with Clean Professional Sidebar
+   Layout: Desktop Responsive Grid with Modern SaaS Sidebar
    ========================================================================== */
 
 .admin-layout {
@@ -12,7 +12,7 @@
 /* Sidebar Navigation */
 .sidebar {
   width: 240px;
-  background-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.92);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -24,11 +24,13 @@
   height: 100dvh;
   z-index: 90;
   overflow: hidden;
+  box-shadow: 16px 0 48px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(18px);
 }
 
 .sidebar-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 18px 16px 14px;
+  border-bottom: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -40,7 +42,7 @@
   height: 32px;
   background-color: var(--primary-color);
   color: white;
-  border-radius: var(--radius-sm);
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,38 +59,40 @@
 
 .sidebar-menu {
   list-style: none;
-  padding: 8px;
+  padding: 8px 12px;
   flex-grow: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-menu-item {
-  margin-bottom: 2px;
+  margin-bottom: 5px;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 10px;
+  padding: 9px 13px;
   color: #475569;
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 500;
-  border-radius: var(--radius-sm);
-  transition: all 0.15s ease;
+  border-radius: var(--radius-full);
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .sidebar-link:hover {
-  background-color: #F1F5F9;
-  color: var(--primary-color);
+  background-color: var(--surface-soft);
+  color: var(--text-main);
+  transform: translateX(2px);
 }
 
 .sidebar-link.active {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: #FFFFFF;
   font-weight: 600;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
 }
 
 .sidebar-link .icon {
@@ -97,23 +101,23 @@
 }
 
 .sidebar-footer {
-  padding: 10px 12px;
-  border-top: 1px solid var(--border-color);
+  padding: 12px;
+  border-top: 0;
   background-color: var(--card-bg);
   flex-shrink: 0;
 }
 
 [data-theme="dark"] .sidebar-footer {
-  background-color: #151C2C !important;
-  border-color: #2D3748 !important;
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
 }
 
 /* Main Content Wrapper */
 .admin-main {
   margin-left: 240px;
   flex-grow: 1;
-  padding: 24px 32px;
-  max-width: 1300px;
+  padding: 30px 36px;
+  max-width: 1440px;
   box-sizing: border-box;
 }
 
@@ -121,14 +125,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .admin-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.65rem;
   font-weight: 700;
   color: var(--text-main);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  letter-spacing: -0.035em;
 }
 
 .admin-header p {
@@ -140,19 +145,25 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
   background-color: var(--card-bg);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
-  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10), 0 3px 10px rgba(15, 23, 42, 0.04);
 }
 
 .stat-info {
@@ -164,10 +175,11 @@
   font-size: 0.8rem;
   color: var(--text-muted);
   font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .stat-value {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--text-main);
   margin-top: 2px;
@@ -175,9 +187,9 @@
 }
 
 .stat-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-sm);
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,10 +197,16 @@
   border: 1px solid transparent;
 }
 
-.stat-icon.primary { background-color: var(--primary-light); color: var(--primary-color); border-color: #BFDBFE; }
-.stat-icon.success { background-color: var(--success-light); color: var(--success-color); border-color: #A7F3D0; }
-.stat-icon.warning { background-color: var(--warning-light); color: var(--warning-color); border-color: #FDE68A; }
-.stat-icon.danger  { background-color: var(--danger-light); color: var(--danger-color); border-color: #FCA5A5; }
+.stat-icon.primary { background-color: var(--accent-light); color: var(--accent-color); border-color: rgba(124, 58, 237, 0.14); }
+.stat-icon.success { background-color: var(--success-light); color: var(--success-color); border-color: rgba(5, 150, 105, 0.16); }
+.stat-icon.warning { background-color: var(--warning-light); color: var(--warning-color); border-color: rgba(217, 119, 6, 0.16); }
+.stat-icon.danger  { background-color: var(--danger-light); color: var(--danger-color); border-color: rgba(220, 38, 38, 0.16); }
+
+[data-theme="dark"] .stat-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-md);
+}
 
 /* ==========================================================================
    Mobile & Tablet (iPad) Responsive Adjustments for Admin
@@ -212,7 +230,7 @@
     z-index: 2000 !important;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 18px 0 56px rgba(0, 0, 0, 0.28);
   }
 
   .sidebar.active {
@@ -299,7 +317,7 @@
   padding: 5px 10px;
   font-size: 0.78rem;
   font-weight: 500;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
   background-color: var(--card-bg);
   color: var(--text-main);
@@ -312,9 +330,9 @@
 }
 
 .action-dropdown-btn:hover {
-  background-color: var(--primary-light);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  background-color: var(--accent-light);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .action-dropdown-menu {
@@ -324,11 +342,11 @@
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   min-width: 170px;
   z-index: 1500;
   display: none;
-  padding: 4px 0;
+  padding: 6px;
   text-align: left;
 }
 
@@ -340,17 +358,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-size: 0.8rem;
   color: var(--text-main);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.12s ease;
+  border-radius: 10px;
 }
 
 .action-dropdown-item:hover {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
+  background-color: var(--accent-light);
+  color: var(--accent-color);
 }
 
 .action-dropdown-item.danger {
@@ -369,15 +388,15 @@
 }
 
 [data-theme="dark"] .action-dropdown-btn {
-  background-color: #0F172A !important;
-  border-color: #334155 !important;
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border-color) !important;
   color: #FFFFFF !important;
 }
 
 [data-theme="dark"] .action-dropdown-menu {
-  background-color: #151C2C !important;
-  border-color: #2D3748 !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
 [data-theme="dark"] .action-dropdown-item {
@@ -385,8 +404,8 @@
 }
 
 [data-theme="dark"] .action-dropdown-item:hover {
-  background-color: #1E293B !important;
-  color: #60A5FA !important;
+  background-color: var(--accent-light) !important;
+  color: var(--accent-color) !important;
 }
 
 [data-theme="dark"] .action-dropdown-item.danger {
@@ -397,5 +416,4 @@
   background-color: #7F1D1D !important;
   color: #FCA5A5 !important;
 }
-
 
