@@ -114,15 +114,13 @@
   flex-grow: 1;
   padding: 24px 32px;
   max-width: 1300px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* Admin Page Footer Styling */
 .admin-footer {
-  margin-top: auto;
-  padding: 20px 0 10px 0;
+  margin-top: 32px;
+  padding: 20px 16px 24px 16px;
   border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -132,6 +130,14 @@
   text-align: center;
   font-size: 0.82rem;
   color: var(--text-muted);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-footer p {
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .admin-footer-sub {
@@ -267,8 +273,19 @@
 
   .admin-main {
     margin-left: 0 !important;
-    padding: 16px !important;
+    padding: 16px 12px 24px 12px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-footer {
+    margin-top: 24px !important;
+    padding: 16px 8px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .admin-footer-sub {
+    font-size: 0.72rem !important;
   }
 
   .admin-header {
