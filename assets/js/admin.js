@@ -128,6 +128,8 @@ async function loadLeaveApprovals(statusFilter = '') {
         if (!result.success) return;
 
         const requests = result.data;
+        window.cachedLeaveRequests = requests;
+
         if (!requests || requests.length === 0) {
             container.innerHTML = `
                 <tr>
@@ -145,17 +147,26 @@ async function loadLeaveApprovals(statusFilter = '') {
             if (item.status === 'approved') badgeClass = 'badge-success';
             if (item.status === 'rejected') badgeClass = 'badge-danger';
 
-            let actionButtons = '-';
+            let actionButtons = '';
             if (item.status === 'pending') {
                 actionButtons = `
-                    <button class="btn btn-success btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'approve')">
+                    <button class="btn btn-success btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'approve')" title="อนุมัติ">
                         <i class="fa-solid fa-check"></i> อนุมัติ
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'reject')">
+                    <button class="btn btn-danger btn-sm" onclick="handleLeaveAction(${item.leave_id}, 'reject')" title="ปฏิเสธ">
                         <i class="fa-solid fa-xmark"></i> ปฏิเสธ
                     </button>
                 `;
             }
+
+            actionButtons += `
+                <button class="btn btn-outline btn-sm" onclick="openEditLeaveModal(${item.leave_id})" title="แก้ไขใบลา">
+                    <i class="fa-solid fa-pen-to-square"></i> แก้ไข
+                </button>
+                <button class="btn btn-outline btn-sm" style="color:var(--danger-color); border-color:var(--danger-color);" onclick="deleteLeaveRequest(${item.leave_id})" title="ลบใบลา">
+                    <i class="fa-solid fa-trash-can"></i> ลบ
+                </button>
+            `;
 
             html += `
                 <tr>
@@ -165,7 +176,7 @@ async function loadLeaveApprovals(statusFilter = '') {
                     <td>${item.start_date_th} - ${item.end_date_th}<br><small style="color:var(--text-muted);">(${item.days_count} วัน | สิทธิ์เหลือ ${item.remaining} วัน)</small></td>
                     <td style="max-width:180px; word-wrap:break-word;">${escapeHtml(item.reason)}</td>
                     <td><span class="badge ${badgeClass}">${item.status === 'pending' ? 'รออนุมัติ' : (item.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ')}</span></td>
-                    <td><div style="display:flex; gap:6px;">${actionButtons}</div></td>
+                    <td><div style="display:flex; gap:6px; flex-wrap:wrap;">${actionButtons}</div></td>
                 </tr>
             `;
         });
@@ -789,5 +800,167 @@ async function handleAdminLeaveSubmit(e) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> บันทึกและอนุมัติทันที';
         }
+    }
+}
+
+/**
+ * เปิด Modal แก้ไขคำขอลางาน
+ */
+function openEditLeaveModal(leaveId) {
+    const list = window.cachedLeaveRequests || [];
+    const item = list.find(l => l.leave_id == leaveId);
+    if (!item) return;
+
+    document.getElementById('edit_leave_id').value = item.leave_id;
+    document.getElementById('edit_emp_name').value = `${item.emp_code} - ${item.employee_name} (${item.dept_name})`;
+    document.getElementById('edit_leave_type').value = item.leave_type;
+    document.getElementById('edit_start_date').value = item.start_date;
+    document.getElementById('edit_end_date').value = item.end_date;
+    document.getElementById('edit_leave_reason').value = item.reason;
+
+    calculateEditLeaveDays();
+    document.getElementById('editLeaveModal').classList.add('active');
+}
+
+function closeEditLeaveModal() {
+    document.getElementById('editLeaveModal').classList.remove('active');
+}
+
+function calculateEditLeaveDays() {
+    const sDate = document.getElementById('edit_start_date').value;
+    const eDate = document.getElementById('edit_end_date').value;
+    const display = document.getElementById('editCalculatedDaysDisplay');
+
+    if (!sDate || !eDate) {
+        display.textContent = 'กรุณาเลือกวันที่';
+        return;
+    }
+
+    const start = new Date(sDate);
+    const end = new Date(eDate);
+
+    if (start > end) {
+        display.innerHTML = '<span style="color:var(--danger-color);">วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด</span>';
+        return;
+    }
+
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    display.innerHTML = `รวมจำนวน <strong>${diffDays}</strong> วัน`;
+}
+
+/**
+ * บันทึกการแก้ไขใบลา
+ */
+async function handleEditLeaveSubmit(e) {
+    e.preventDefault();
+    const leaveId = document.getElementById('edit_leave_id').value;
+    const leaveType = document.getElementById('edit_leave_type').value;
+    const startDate = document.getElementById('edit_start_date').value;
+    const endDate = document.getElementById('edit_end_date').value;
+    const reason = document.getElementById('edit_leave_reason').value;
+    const btn = document.getElementById('editSubmitLeaveBtn');
+
+    if (!leaveId || !startDate || !endDate || !reason) {
+        Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+        return;
+    }
+
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+        }
+
+        const response = await fetch('../api/admin_leave.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'edit',
+                leave_id: leaveId,
+                leave_type: leaveType,
+                start_date: startDate,
+                end_date: endDate,
+                reason: reason
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'แก้ไขคำขอลางานสำเร็จ!',
+                text: result.message,
+                timer: 1800,
+                showConfirmButton: false
+            });
+            closeEditLeaveModal();
+            loadLeaveApprovals();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'ไม่สามารถแก้ไขได้',
+                text: result.message || 'เกิดข้อผิดพลาดในการบันทึก'
+            });
+        }
+    } catch (err) {
+        console.error('Error editing leave:', err);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข';
+        }
+    }
+}
+
+/**
+ * ลบ/ยกเลิกคำขอลางาน
+ */
+async function deleteLeaveRequest(leaveId) {
+    const confirm = await Swal.fire({
+        title: 'ยืนยันลบคำขอลางาน?',
+        text: 'หากเป็นใบลาที่อนุมัติแล้ว ระบบจะคืนโควตาวันลากลับเข้าสู่บัญชีพนักงานโดยอัตโนมัติ',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        confirmButtonText: 'ลบคำขอลางาน',
+        cancelButtonText: 'ยกเลิก'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+        const response = await fetch('../api/admin_leave.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'delete',
+                leave_id: leaveId
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'ลบคำขอลางานสำเร็จ!',
+                text: result.message,
+                timer: 1800,
+                showConfirmButton: false
+            });
+            loadLeaveApprovals();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: result.message
+            });
+        }
+    } catch (err) {
+        console.error('Error deleting leave:', err);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
     }
 }

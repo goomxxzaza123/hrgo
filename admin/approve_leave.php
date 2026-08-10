@@ -208,6 +208,60 @@ $userRole = strtoupper($currentUser['role']);
         </div>
     </div>
 
+    <!-- Modal: แก้ไขคำขอลางาน (Edit Leave Modal) -->
+    <div class="modal-backdrop" id="editLeaveModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square"></i> แก้ไขคำขอลางาน</h3>
+                <button type="button" onclick="closeEditLeaveModal()" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="editLeaveForm" onsubmit="handleEditLeaveSubmit(event)">
+                <input type="hidden" id="edit_leave_id">
+
+                <div class="form-group">
+                    <label class="form-label">พนักงาน</label>
+                    <input type="text" id="edit_emp_name" class="form-control" readonly style="background:var(--surface-soft); font-weight:600;">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ประเภทการลา</label>
+                    <select id="edit_leave_type" class="form-control" required>
+                        <option value="sick">ลาป่วย (Sick Leave)</option>
+                        <option value="personal">ลากิจ (Personal Leave)</option>
+                        <option value="vacation">ลาพักร้อน (Vacation Leave)</option>
+                    </select>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">วันที่เริ่มลา</label>
+                        <input type="date" id="edit_start_date" class="form-control" required onchange="calculateEditLeaveDays()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่สิ้นสุด</label>
+                        <input type="date" id="edit_end_date" class="form-control" required onchange="calculateEditLeaveDays()">
+                    </div>
+                </div>
+
+                <div id="editCalculatedDaysDisplay" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; text-align:right;">
+                    คำนวณจำนวนวัน...
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">เหตุผลการลา</label>
+                    <textarea id="edit_leave_reason" class="form-control" placeholder="ระบุเหตุผลการลา..." required style="height:80px;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                    <button type="button" class="btn btn-outline" onclick="closeEditLeaveModal()">ยกเลิก</button>
+                    <button type="submit" id="editSubmitLeaveBtn" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Core Scripts -->
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/admin.js"></script>

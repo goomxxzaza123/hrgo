@@ -210,6 +210,190 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // -------------------------------------------------------------
+    // กรณีที่ 2: แก้ไขคำขอลางาน (action = 'edit')
+    // -------------------------------------------------------------
+    if ($action === 'edit') {
+        $leaveId   = (int)($inputData['leave_id'] ?? 0);
+        $leaveType = trim($inputData['leave_type'] ?? '');
+        $startDate = trim($inputData['start_date'] ?? '');
+        $endDate   = trim($inputData['end_date'] ?? '');
+        $reason    = trim($inputData['reason'] ?? '');
+
+        if (!$leaveId || !in_array($leaveType, ['sick', 'personal', 'vacation']) || empty($startDate) || empty($endDate) || empty($reason)) {
+            sendJsonResponse(false, 'ข้อมูลไม่ถูกต้อง กรุณากรอกข้อมูลใบลาให้ครบถ้วน', null, 400);
+        }
+
+        if ($startDate > $endDate) {
+            sendJsonResponse(false, 'วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด', null, 400);
+        }
+
+        try {
+            $pdo->beginTransaction();
+
+            $stmtCheck = $pdo->prepare("SELECT * FROM leave_requests WHERE leave_id = :leave_id FOR UPDATE");
+            $stmtCheck->execute([':leave_id' => $leaveId]);
+            $leave = $stmtCheck->fetch();
+
+            if (!$leave) {
+                $pdo->rollBack();
+                sendJsonResponse(false, 'ไม่พบข้อมูลคำขอลางานนี้', null, 404);
+            }
+
+            $userId = (int)$leave['user_id'];
+
+            // ตรวจสอบวันลาซ้อนทับกับคำขออื่น
+            $stmtOverlap = $pdo->prepare("
+                SELECT leave_id FROM leave_requests 
+                WHERE user_id = :user_id AND leave_id != :leave_id 
+                  AND status IN ('pending', 'approved') 
+                  AND NOT (end_date < :start_date OR start_date > :end_date)
+                LIMIT 1
+            ");
+            $stmtOverlap->execute([
+                ':user_id'    => $userId,
+                ':leave_id'   => $leaveId,
+                ':start_date' => $startDate,
+                ':end_date'   => $endDate
+            ]);
+            if ($stmtOverlap->fetch()) {
+                $pdo->rollBack();
+                sendJsonResponse(false, 'ช่วงวันที่เลือกซ้ำซ้อนกับคำขอลางานอื่นของพนักงาน', null, 400);
+            }
+
+            $oldStart = new DateTime($leave['start_date']);
+            $oldEnd   = new DateTime($leave['end_date']);
+            $oldDays  = $oldStart->diff($oldEnd)->days + 1;
+
+            $newStart = new DateTime($startDate);
+            $newEnd   = new DateTime($endDate);
+            $newDays  = $newStart->diff($newEnd)->days + 1;
+
+            // หากเป็นใบลาที่อนุมัติแล้ว ต้องคืนโควตาเก่า แล้วตัดโควตาใหม่
+            if ($leave['status'] === 'approved') {
+                // คืนโควตาเก่า
+                $stmtRevert = $pdo->prepare("
+                    UPDATE leave_balances 
+                    SET used_days = GREATEST(0, used_days - :old_days) 
+                    WHERE user_id = :user_id AND leave_type = :leave_type
+                ");
+                $stmtRevert->execute([
+                    ':old_days'   => $oldDays,
+                    ':user_id'    => $userId,
+                    ':leave_type' => $leave['leave_type']
+                ]);
+
+                // ตรวจสอบโควตาใหม่
+                $stmtBal = $pdo->prepare("
+                    SELECT total_quota, used_days FROM leave_balances 
+                    WHERE user_id = :user_id AND leave_type = :leave_type
+                ");
+                $stmtBal->execute([':user_id' => $userId, ':leave_type' => $leaveType]);
+                $bal = $stmtBal->fetch();
+
+                if ($bal) {
+                    $remaining = (int)$bal['total_quota'] - (int)$bal['used_days'];
+                    if ($remaining < $newDays) {
+                        $pdo->rollBack();
+                        sendJsonResponse(false, "โควตาวันลาไม่เพียงพอ (ต้องการ {$newDays} วัน แต่สิทธิ์คงเหลือ {$remaining} วัน)", null, 400);
+                    }
+                }
+
+                // ตัดโควตาใหม่
+                $stmtDeduct = $pdo->prepare("
+                    UPDATE leave_balances 
+                    SET used_days = used_days + :new_days 
+                    WHERE user_id = :user_id AND leave_type = :leave_type
+                ");
+                $stmtDeduct->execute([
+                    ':new_days'   => $newDays,
+                    ':user_id'    => $userId,
+                    ':leave_type' => $leaveType
+                ]);
+            }
+
+            // อัปเดตข้อมูลใบลา
+            $stmtUpd = $pdo->prepare("
+                UPDATE leave_requests 
+                SET leave_type = :leave_type, start_date = :start_date, end_date = :end_date, reason = :reason
+                WHERE leave_id = :leave_id
+            ");
+            $stmtUpd->execute([
+                ':leave_type' => $leaveType,
+                ':start_date' => $startDate,
+                ':end_date'   => $endDate,
+                ':reason'     => $reason,
+                ':leave_id'   => $leaveId
+            ]);
+
+            $pdo->commit();
+            sendJsonResponse(true, 'แก้ไขคำขอลางานเรียบร้อยแล้ว');
+
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            sendJsonResponse(false, 'เกิดข้อผิดพลาดในการแก้ไขใบลา: ' . $e->getMessage(), null, 500);
+        }
+    }
+
+    // -------------------------------------------------------------
+    // กรณีที่ 3: ยกเลิก/ลบใบลา (action = 'delete')
+    // -------------------------------------------------------------
+    if ($action === 'delete') {
+        $leaveId = (int)($inputData['leave_id'] ?? 0);
+        if (!$leaveId) {
+            sendJsonResponse(false, 'ไม่ระบุ leave_id', null, 400);
+        }
+
+        try {
+            $pdo->beginTransaction();
+
+            $stmtCheck = $pdo->prepare("SELECT * FROM leave_requests WHERE leave_id = :leave_id FOR UPDATE");
+            $stmtCheck->execute([':leave_id' => $leaveId]);
+            $leave = $stmtCheck->fetch();
+
+            if (!$leave) {
+                $pdo->rollBack();
+                sendJsonResponse(false, 'ไม่พบข้อมูลคำขอลางานนี้', null, 404);
+            }
+
+            // หากสถานะเป็นอนุมัติแล้ว คืนโควตาวันลากลับเข้าสู่ระบบ
+            if ($leave['status'] === 'approved') {
+                $startDate = new DateTime($leave['start_date']);
+                $endDate   = new DateTime($leave['end_date']);
+                $daysCount = $startDate->diff($endDate)->days + 1;
+
+                $stmtRevert = $pdo->prepare("
+                    UPDATE leave_balances 
+                    SET used_days = GREATEST(0, used_days - :days) 
+                    WHERE user_id = :user_id AND leave_type = :leave_type
+                ");
+                $stmtRevert->execute([
+                    ':days'       => $daysCount,
+                    ':user_id'    => $leave['user_id'],
+                    ':leave_type' => $leave['leave_type']
+                ]);
+            }
+
+            // ลบใบลา
+            $stmtDel = $pdo->prepare("DELETE FROM leave_requests WHERE leave_id = :leave_id");
+            $stmtDel->execute([':leave_id' => $leaveId]);
+
+            $pdo->commit();
+            sendJsonResponse(true, 'ลบคำขอลางานเรียบร้อยแล้ว (คืนโควตาวันลาเข้าสู่ระบบสำเร็จ)');
+
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            sendJsonResponse(false, 'เกิดข้อผิดพลาดในการลบใบลา: ' . $e->getMessage(), null, 500);
+        }
+    }
+
+    // -------------------------------------------------------------
+    // กรณีที่ 4: อนุมัติ (Approve) หรือ ปฏิเสธ (Reject) ใบลา
+    // -------------------------------------------------------------
     if (!$leaveId || !in_array($action, ['approve', 'reject'])) {
         sendJsonResponse(false, 'ข้อมูลไม่ถูกต้อง (กรุณาระบุ leave_id และ action)', null, 400);
     }
@@ -232,8 +416,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->rollBack();
             sendJsonResponse(false, 'ไม่พบข้อมูลคำขอลางานนี้', null, 404);
         }
-
-
 
         if ($leave['status'] !== 'pending') {
             $pdo->rollBack();
