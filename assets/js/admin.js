@@ -26,6 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('usersTable')) {
         loadManageUsers();
     }
+
+    // 4. คลิกพื้นที่ภายนอก (Backdrop) เพื่อปิด Modal
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.classList.contains('modal-backdrop') && e.target.classList.contains('active')) {
+            e.target.classList.remove('active');
+        }
+    });
 });
 
 /**
