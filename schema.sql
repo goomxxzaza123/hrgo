@@ -1,8 +1,8 @@
 -- HR Management System Database Schema & Initial Data
--- Database Name: hrgogemini
+-- Database Name: hrgo
 
-CREATE DATABASE IF NOT EXISTS hrgogemini CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE hrgogemini;
+CREATE DATABASE IF NOT EXISTS hrgo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE hrgo;
 
 -- Drop existing tables if re-initialising (in reverse order of dependency)
 DROP TABLE IF EXISTS leave_balances;

@@ -29,7 +29,7 @@
 
 - [ ] **Step 1: Capture the failing visual contract in the browser**
 
-Open `http://localhost/hrgogemini/index.php` and run this assertion against the rendered login card and primary button:
+Open `http://localhost/hrgo/index.php` and run this assertion against the rendered login card and primary button:
 
 ```js
 const card = document.querySelector('.login-card');
@@ -114,7 +114,7 @@ git commit -m "style: modernize shared light theme"
 
 - [ ] **Step 1: Capture the failing dark-mode contract**
 
-On `http://localhost/hrgogemini/index.php`, activate the existing dark theme and run:
+On `http://localhost/hrgo/index.php`, activate the existing dark theme and run:
 
 ```js
 const rootStyle = getComputedStyle(document.documentElement);
@@ -183,7 +183,7 @@ git commit -m "style: refine dark and employee surfaces"
 
 - [ ] **Step 1: Capture the failing admin visual contract**
 
-Open `http://localhost/hrgogemini/admin/dashboard.php` at 1440×900 and run:
+Open `http://localhost/hrgo/admin/dashboard.php` at 1440×900 and run:
 
 ```js
 const sidebar = getComputedStyle(document.querySelector('.sidebar'));

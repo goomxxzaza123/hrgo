@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // 1. ตั้งค่าการเชื่อมต่อ Database (PDO)
 // -------------------------------------------------------------
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'hrgogemini');
+define('DB_NAME', 'hrgo');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
