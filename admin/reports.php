@@ -228,12 +228,12 @@ $departments = $stmtDepts->fetchAll();
                     <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     
                     <!-- Dropdown ปุ่มส่งออกรายงาน Excel -->
-                    <div class="dropdown" style="position: relative; display: inline-block;">
-                        <button type="button" class="btn btn-success" id="exportDropdownBtn" onclick="toggleExportMenu(event)" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:9px 16px; border-radius:10px;">
+                    <div class="dropdown" style="position: relative; display: inline-block; z-index: 1100;">
+                        <button type="button" class="btn btn-success" id="exportDropdownBtn" onclick="toggleExportMenu(event)" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:9px 16px; border-radius:10px; cursor:pointer;">
                             <i class="fa-solid fa-file-excel"></i> <span>ส่งออกรายงาน Excel (CSV)</span>
                             <span style="font-size:0.75rem; transition: transform 0.2s;" id="exportDropdownArrow">▼</span>
                         </button>
-                        <div id="exportDropdownMenu" style="display:none; position:absolute; right:0; top:calc(100% + 6px); background:var(--card-bg, #1E293B); border:1px solid var(--border-color, #334155); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.4); z-index:1000; min-width:260px; padding:6px;">
+                        <div id="exportDropdownMenu" style="display:none; position:absolute; right:0; top:calc(100% + 6px); background:var(--card-bg, #1E293B); border:1px solid var(--border-color, #334155); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.4); z-index:9999; min-width:260px; padding:6px;">
                             <a href="javascript:void(0)" onclick="exportReportAllCsv()" style="display:flex; align-items:center; gap:10px; padding:10px 14px; color:var(--text-main, #F8FAFC); border-radius:8px; text-decoration:none; font-size:0.88rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='transparent'">
                                 <i class="fa-solid fa-users-line" style="font-size:1.2rem; color:#10B981;"></i>
                                 <div>
@@ -957,10 +957,14 @@ $departments = $stmtDepts->fetchAll();
         }
 
         function toggleExportMenu(e) {
-            if (e) e.stopPropagation();
+            if (e) {
+                if (e.stopPropagation) e.stopPropagation();
+                if (e.preventDefault) e.preventDefault();
+            }
             const menu = document.getElementById('exportDropdownMenu');
             const arrow = document.getElementById('exportDropdownArrow');
             if (!menu) return;
+            
             const isVisible = (menu.style.display === 'block');
             menu.style.display = isVisible ? 'none' : 'block';
             if (arrow) arrow.style.transform = isVisible ? 'rotate(0deg)' : 'rotate(180deg)';
@@ -972,6 +976,7 @@ $departments = $stmtDepts->fetchAll();
             const arrow = document.getElementById('exportDropdownArrow');
             if (menu && menu.style.display === 'block') {
                 if (btn && btn.contains(e.target)) return;
+                if (menu && menu.contains(e.target)) return;
                 menu.style.display = 'none';
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
