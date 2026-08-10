@@ -138,6 +138,9 @@ if ($method === 'POST') {
                 ':created_by'        => $currentUser['user_id']
             ]);
 
+            // คำนวณสถานะการลงเวลาของพนักงานในวันนั้นใหม่ทันที (หากมีบันทึกการลงเวลาแล้ว)
+            recalculateAttendanceOnShiftChange($pdo, $userId, $dateStr);
+
             sendJsonResponse(true, "บันทึกตารางกะวันที่ {$dateStr} เรียบร้อยแล้ว", [
                 'user_id'    => $userId,
                 'date'       => $dateStr,
@@ -229,6 +232,7 @@ if ($method === 'POST') {
                         ':created_by'       => $currentUser['user_id']
                     ]);
                     $savedCount++;
+                    recalculateAttendanceOnShiftChange($pdo, $uId, $curDateStr);
                 }
             }
 
@@ -291,4 +295,57 @@ if ($method === 'POST') {
     }
 
     sendJsonResponse(false, 'ไม่ระบุ action ที่ถูกต้อง', null, 400);
+}
+
+/**
+ * คำนวณคำนวณสถานะการลงเวลาของพนักงานใหม่เมื่อมีการเปลี่ยนกะในตารางกะ
+ */
+function recalculateAttendanceOnShiftChange($pdo, $userId, $workDate) {
+    try {
+        $stmtAtt = $pdo->prepare("SELECT * FROM attendances WHERE user_id = :uid AND work_date = :wdate LIMIT 1");
+        $stmtAtt->execute([':uid' => $userId, ':wdate' => $workDate]);
+        $att = $stmtAtt->fetch();
+
+        if ($att && !empty($att['check_in_time'])) {
+            $shiftInfo = getUserShiftForDate($pdo, $userId, $workDate);
+            $shiftType = $shiftInfo['shift_type'];
+            $shiftStartStr = $shiftInfo['shift_start_time'];
+
+            $shiftStartTs = strtotime($workDate . ' ' . $shiftStartStr);
+            $checkInTs    = strtotime($att['check_in_time']);
+
+            $lateMinutes = 0;
+            if ($checkInTs > $shiftStartTs + 59) {
+                $status = 'late';
+                $lateMinutes = (int)floor(($checkInTs - $shiftStartTs) / 60);
+            } else {
+                $status = 'on_time';
+            }
+
+            $workHours = $att['work_hours'];
+            $otHours   = $att['ot_hours'];
+
+            if (!empty($att['check_out_time'])) {
+                $checkOutTs = strtotime($att['check_out_time']);
+                $calc = calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType, $userId);
+                $workHours = $calc['work_hours'];
+                $otHours   = $calc['ot_hours'];
+            }
+
+            $stmtUpd = $pdo->prepare("
+                UPDATE attendances 
+                SET late_minutes = :late_m, status = :status, work_hours = :wh, ot_hours = :ot
+                WHERE attendance_id = :aid
+            ");
+            $stmtUpd->execute([
+                ':late_m' => $lateMinutes,
+                ':status' => $status,
+                ':wh'     => $workHours,
+                ':ot'     => $otHours,
+                ':aid'    => $att['attendance_id']
+            ]);
+        }
+    } catch (Exception $e) {
+        // Ignore error
+    }
 }

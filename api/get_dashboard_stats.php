@@ -65,7 +65,7 @@ try {
 
     // 6. รายการลงเวลาล่าสุดของวันนี้ (20 รายการ)
     $stmtLog = $pdo->prepare("
-        SELECT a.attendance_id, u.emp_code, u.name AS employee_name, d.dept_name, u.shift_type,
+        SELECT a.attendance_id, a.user_id, u.emp_code, u.name AS employee_name, d.dept_name, u.shift_type,
                a.check_in_time, a.check_out_time, a.status, a.check_in_photo, a.check_out_photo, a.late_minutes
         FROM attendances a 
         JOIN users u ON a.user_id = u.user_id 
@@ -77,15 +77,20 @@ try {
     $stmtLog->execute($paramsToday);
     $recentLog = $stmtLog->fetchAll();
 
-    $formattedLog = array_map(function($row) {
-        $lateMins = (int)($row['late_minutes'] ?? 0);
-        $shift = $row['shift_type'] ?? 'day';
+    $formattedLog = array_map(function($row) use ($pdo, $today) {
+        $lateMins  = (int)($row['late_minutes'] ?? 0);
+        $shiftInfo = getUserShiftForDate($pdo, $row['user_id'], $today);
+        $shift     = $shiftInfo['shift_type'];
+        $shiftLabel = ($shift === 'off') 
+            ? '🏝️ วันหยุด' 
+            : (($shift === 'night') ? '🌙 กลางคืน' : '☀️ กลางวัน');
+
         return [
             'emp_code'        => $row['emp_code'],
             'employee_name'   => $row['employee_name'],
             'dept_name'       => $row['dept_name'] ?? 'ไม่ระบุ',
             'shift_type'      => $shift,
-            'shift_label'     => ($shift === 'night') ? '🌙 กลางคืน' : '☀️ กลางวัน',
+            'shift_label'     => $shiftLabel,
             'check_in_time'   => date('H:i:s', strtotime($row['check_in_time'])),
             'check_out_time'  => $row['check_out_time'] ? date('H:i:s', strtotime($row['check_out_time'])) : '-',
             'check_in_photo'  => $row['check_in_photo'],
