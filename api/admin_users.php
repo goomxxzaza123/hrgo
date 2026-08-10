@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // ดึงรายการพนักงาน
         $stmtUsers = $pdo->query("
             SELECT u.user_id, u.emp_code, u.name, u.role, u.dept_id, d.dept_name, u.avatar_url, u.phone,
+                   u.birth_date, u.start_work_date,
                    u.shift_type, u.shift_start_time, u.shift_end_time, u.ot_cap_time, u.is_active, u.created_at 
             FROM users u
             LEFT JOIN departments d ON u.dept_id = d.dept_id
@@ -45,6 +46,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $formattedUsers = array_map(function($u) use ($balancesGrouped) {
             $shiftLabel = ($u['shift_type'] === 'night') ? '🌙 กะกลางคืน (20:00-05:00)' : '☀️ กะกลางวัน (08:00-17:00)';
+
+            // คำนวณอายุ (Age)
+            $ageText = '-';
+            if (!empty($u['birth_date']) && $u['birth_date'] !== '0000-00-00') {
+                $bDate = new DateTime($u['birth_date']);
+                $today = new DateTime();
+                $diff  = $today->diff($bDate);
+                $ageText = $diff->y . ' ปี';
+            }
+
+            // คำนวณอายุงาน (Work Tenure / Service Years)
+            $tenureText = '-';
+            if (!empty($u['start_work_date']) && $u['start_work_date'] !== '0000-00-00') {
+                $sDate = new DateTime($u['start_work_date']);
+                $today = new DateTime();
+                $diff  = $today->diff($sDate);
+                if ($diff->y > 0) {
+                    $tenureText = $diff->y . ' ปี ' . $diff->m . ' เดือน';
+                } elseif ($diff->m > 0) {
+                    $tenureText = $diff->m . ' เดือน ' . $diff->d . ' วัน';
+                } else {
+                    $tenureText = $diff->d . ' วัน';
+                }
+            }
+
             return [
                 'user_id'          => $u['user_id'],
                 'emp_code'         => $u['emp_code'],
@@ -54,6 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'dept_name'        => $u['dept_name'] ?? 'ไม่ระบุ',
                 'avatar_url'       => $u['avatar_url'],
                 'phone'            => $u['phone'] ?? '',
+                'birth_date'       => (!empty($u['birth_date']) && $u['birth_date'] !== '0000-00-00') ? $u['birth_date'] : '',
+                'birth_date_th'    => (!empty($u['birth_date']) && $u['birth_date'] !== '0000-00-00') ? date('d/m/Y', strtotime($u['birth_date'])) : '-',
+                'age'              => $ageText,
+                'start_work_date'  => (!empty($u['start_work_date']) && $u['start_work_date'] !== '0000-00-00') ? $u['start_work_date'] : '',
+                'start_work_th'    => (!empty($u['start_work_date']) && $u['start_work_date'] !== '0000-00-00') ? date('d/m/Y', strtotime($u['start_work_date'])) : '-',
+                'work_tenure'      => $tenureText,
                 'shift_type'       => $u['shift_type'] ?? 'day',
                 'shift_start_time' => substr($u['shift_start_time'] ?? '08:00:00', 0, 5),
                 'shift_end_time'   => substr($u['shift_end_time'] ?? '17:00:00', 0, 5),
@@ -85,12 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Case 1: สร้างพนักงานใหม่ (Create User)
         if ($action === 'create') {
-            $empCode  = trim($inputData['emp_code'] ?? '');
-            $name     = trim($inputData['name'] ?? '');
-            $password = trim($inputData['password'] ?? '');
-            $role     = trim($inputData['role'] ?? 'employee');
-            $deptId   = (int)($inputData['dept_id'] ?? 0);
-            $phone    = trim($inputData['phone'] ?? '');
+            $empCode       = trim($inputData['emp_code'] ?? '');
+            $name          = trim($inputData['name'] ?? '');
+            $password      = trim($inputData['password'] ?? '');
+            $role          = trim($inputData['role'] ?? 'employee');
+            $deptId        = (int)($inputData['dept_id'] ?? 0);
+            $phone         = trim($inputData['phone'] ?? '');
+            $birthDate     = trim($inputData['birth_date'] ?? '');
+            $startWorkDate = trim($inputData['start_work_date'] ?? '');
 
             if (empty($empCode) || empty($name) || empty($password)) {
                 sendJsonResponse(false, 'กรุณากรอกรหัสพนักงาน ชื่อ-นามสกุล และรหัสผ่าน', null, 400);
@@ -108,16 +142,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             $stmtIns = $pdo->prepare("
-                INSERT INTO users (emp_code, name, password_hash, role, dept_id, phone, is_active) 
-                VALUES (:emp_code, :name, :password_hash, :role, :dept_id, :phone, 1)
+                INSERT INTO users (emp_code, name, password_hash, role, dept_id, phone, birth_date, start_work_date, is_active) 
+                VALUES (:emp_code, :name, :password_hash, :role, :dept_id, :phone, :birth_date, :start_work_date, 1)
             ");
             $stmtIns->execute([
-                ':emp_code'      => $empCode,
-                ':name'          => $name,
-                ':password_hash' => $passwordHash,
-                ':role'          => $role,
-                ':dept_id'       => $deptId ?: null,
-                ':phone'         => $phone ?: null
+                ':emp_code'        => $empCode,
+                ':name'            => $name,
+                ':password_hash'   => $passwordHash,
+                ':role'            => $role,
+                ':dept_id'         => $deptId ?: null,
+                ':phone'           => $phone ?: null,
+                ':birth_date'      => !empty($birthDate) ? $birthDate : null,
+                ':start_work_date' => !empty($startWorkDate) ? $startWorkDate : null
             ]);
             $newUserId = $pdo->lastInsertId();
 
@@ -137,13 +173,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Case 2: แก้ไขข้อมูลพนักงาน & รีเซ็ตรหัสผ่าน (Update User)
         if ($action === 'update') {
-            $userId   = (int)($inputData['user_id'] ?? 0);
-            $empCode  = trim($inputData['emp_code'] ?? '');
-            $name     = trim($inputData['name'] ?? '');
-            $role     = trim($inputData['role'] ?? 'employee');
-            $deptId   = (int)($inputData['dept_id'] ?? 0);
-            $phone    = trim($inputData['phone'] ?? '');
-            $password = trim($inputData['password'] ?? '');
+            $userId        = (int)($inputData['user_id'] ?? 0);
+            $empCode       = trim($inputData['emp_code'] ?? '');
+            $name          = trim($inputData['name'] ?? '');
+            $role          = trim($inputData['role'] ?? 'employee');
+            $deptId        = (int)($inputData['dept_id'] ?? 0);
+            $phone         = trim($inputData['phone'] ?? '');
+            $password      = trim($inputData['password'] ?? '');
+            $birthDate     = trim($inputData['birth_date'] ?? '');
+            $startWorkDate = trim($inputData['start_work_date'] ?? '');
 
             if (!$userId || empty($name) || empty($empCode)) {
                 sendJsonResponse(false, 'กรุณากรอกรหัสพนักงานและชื่อ-นามสกุล', null, 400);
@@ -160,31 +198,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
                 $stmtUpd = $pdo->prepare("
                     UPDATE users 
-                    SET emp_code = :emp_code, name = :name, role = :role, dept_id = :dept_id, phone = :phone, password_hash = :hash 
+                    SET emp_code = :emp_code, name = :name, role = :role, dept_id = :dept_id, phone = :phone, 
+                        birth_date = :birth_date, start_work_date = :start_work_date, password_hash = :hash 
                     WHERE user_id = :user_id
                 ");
                 $stmtUpd->execute([
-                    ':emp_code' => $empCode,
-                    ':name'     => $name,
-                    ':role'     => $role,
-                    ':dept_id'  => $deptId ?: null,
-                    ':phone'    => $phone ?: null,
-                    ':hash'     => $passwordHash,
-                    ':user_id'  => $userId
+                    ':emp_code'        => $empCode,
+                    ':name'            => $name,
+                    ':role'            => $role,
+                    ':dept_id'         => $deptId ?: null,
+                    ':phone'           => $phone ?: null,
+                    ':birth_date'      => !empty($birthDate) ? $birthDate : null,
+                    ':start_work_date' => !empty($startWorkDate) ? $startWorkDate : null,
+                    ':hash'            => $passwordHash,
+                    ':user_id'         => $userId
                 ]);
             } else {
                 $stmtUpd = $pdo->prepare("
                     UPDATE users 
-                    SET emp_code = :emp_code, name = :name, role = :role, dept_id = :dept_id, phone = :phone 
+                    SET emp_code = :emp_code, name = :name, role = :role, dept_id = :dept_id, phone = :phone,
+                        birth_date = :birth_date, start_work_date = :start_work_date
                     WHERE user_id = :user_id
                 ");
                 $stmtUpd->execute([
-                    ':emp_code' => $empCode,
-                    ':name'     => $name,
-                    ':role'     => $role,
-                    ':dept_id'  => $deptId ?: null,
-                    ':phone'    => $phone ?: null,
-                    ':user_id'  => $userId
+                    ':emp_code'        => $empCode,
+                    ':name'            => $name,
+                    ':role'            => $role,
+                    ':dept_id'         => $deptId ?: null,
+                    ':phone'           => $phone ?: null,
+                    ':birth_date'      => !empty($birthDate) ? $birthDate : null,
+                    ':start_work_date' => !empty($startWorkDate) ? $startWorkDate : null,
+                    ':user_id'         => $userId
                 ]);
             }
 

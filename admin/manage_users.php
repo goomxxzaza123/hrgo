@@ -125,7 +125,8 @@ $userRole = strtoupper($currentUser['role']);
                                 <th>ชื่อ-นามสกุล</th>
                                 <th>สิทธิ์ (Role)</th>
                                 <th>แผนก</th>
-                                <th>กะการทำงาน (Shift)</th>
+                                <th>วันเกิด (อายุ)</th>
+                                <th>เริ่มงาน (อายุงาน)</th>
                                 <th>โควตาคงเหลือ</th>
                                 <th>สถานะ</th>
                                 <th>จัดการ</th>
@@ -133,7 +134,7 @@ $userRole = strtoupper($currentUser['role']);
                         </thead>
                         <tbody id="usersTable">
                             <tr>
-                                <td colspan="8" style="text-align:center; padding: 20px; color:var(--text-muted);">
+                                <td colspan="9" style="text-align:center; padding: 20px; color:var(--text-muted);">
                                     กำลังโหลดรายชื่อพนักงาน...
                                 </td>
                             </tr>
@@ -167,6 +168,18 @@ $userRole = strtoupper($currentUser['role']);
                         <input type="tel" id="add_phone" class="form-control" placeholder="เช่น 081-234-5678">
                     </div>
                 </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">วันเดือนปีเกิด</label>
+                        <input type="date" id="add_birth_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่เริ่มทำงาน</label>
+                        <input type="date" id="add_start_work_date" class="form-control">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">รหัสผ่านเริ่มต้น</label>
                     <input type="password" id="add_password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
@@ -228,6 +241,16 @@ $userRole = strtoupper($currentUser['role']);
                     <div class="form-group">
                         <label class="form-label">เบอร์โทรศัพท์</label>
                         <input type="tel" id="edit_phone" class="form-control" placeholder="เช่น 081-234-5678">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">วันเดือนปีเกิด</label>
+                        <input type="date" id="edit_birth_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่เริ่มทำงาน</label>
+                        <input type="date" id="edit_start_work_date" class="form-control">
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">

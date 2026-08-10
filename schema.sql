@@ -32,6 +32,8 @@ CREATE TABLE users (
     ot_cap_time TIME DEFAULT '20:00:00',
     avatar_url VARCHAR(255) DEFAULT NULL,
     phone VARCHAR(20) DEFAULT NULL,
+    birth_date DATE DEFAULT NULL,
+    start_work_date DATE DEFAULT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (dept_id) REFERENCES departments(dept_id) ON DELETE SET NULL

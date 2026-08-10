@@ -280,7 +280,8 @@ async function loadManageUsers() {
                     </td>
                     <td><span class="badge badge-info">${u.role.toUpperCase()}</span></td>
                     <td>${escapeHtml(u.dept_name)}</td>
-                    <td>${shiftBadge}</td>
+                    <td>${u.birth_date_th}<br><small style="color:var(--text-muted);">(${u.age})</small></td>
+                    <td>${u.start_work_th}<br><small style="color:var(--text-muted);">(${u.work_tenure})</small></td>
                     <td><small>ป่วย:${sickBal} | กิจ:${personalBal} | พักร้อน:${vacationBal}</small></td>
                     <td>${statusBadge}</td>
                     <td>
@@ -329,6 +330,12 @@ function openEditUserModal(user) {
     const phoneInput = document.getElementById('edit_phone');
     if (phoneInput) phoneInput.value = user.phone || '';
 
+    const birthInput = document.getElementById('edit_birth_date');
+    if (birthInput) birthInput.value = user.birth_date || '';
+
+    const startWorkInput = document.getElementById('edit_start_work_date');
+    if (startWorkInput) startWorkInput.value = user.start_work_date || '';
+
     const avatarFile = document.getElementById('edit_avatar_file');
     if (avatarFile) avatarFile.value = '';
 
@@ -363,14 +370,16 @@ function closeEditUserModal() {
 async function handleEditUserSubmit(e) {
     e.preventDefault();
 
-    const userId     = document.getElementById('edit_user_id').value;
-    const empCode    = document.getElementById('edit_emp_code').value.trim();
-    const name       = document.getElementById('edit_name').value.trim();
-    const phone      = document.getElementById('edit_phone') ? document.getElementById('edit_phone').value.trim() : '';
-    const role       = document.getElementById('edit_role').value;
-    const deptId     = document.getElementById('edit_dept_id').value;
-    const password   = document.getElementById('edit_password').value.trim();
-    const avatarInput = document.getElementById('edit_avatar_file');
+    const userId        = document.getElementById('edit_user_id').value;
+    const empCode       = document.getElementById('edit_emp_code').value.trim();
+    const name          = document.getElementById('edit_name').value.trim();
+    const phone         = document.getElementById('edit_phone') ? document.getElementById('edit_phone').value.trim() : '';
+    const birthDate     = document.getElementById('edit_birth_date') ? document.getElementById('edit_birth_date').value : '';
+    const startWorkDate = document.getElementById('edit_start_work_date') ? document.getElementById('edit_start_work_date').value : '';
+    const role          = document.getElementById('edit_role').value;
+    const deptId        = document.getElementById('edit_dept_id').value;
+    const password      = document.getElementById('edit_password').value.trim();
+    const avatarInput   = document.getElementById('edit_avatar_file');
 
     try {
         // 1. บันทึกข้อมูลข้อความ
@@ -383,6 +392,8 @@ async function handleEditUserSubmit(e) {
                 emp_code: empCode,
                 name: name,
                 phone: phone,
+                birth_date: birthDate,
+                start_work_date: startWorkDate,
                 role: role,
                 dept_id: deptId,
                 password: password
@@ -611,13 +622,15 @@ function closeAddUserModal() {
 async function handleAddUserSubmit(e) {
     e.preventDefault();
 
-    const emp_code = document.getElementById('add_emp_code').value.trim();
-    const name     = document.getElementById('add_name').value.trim();
-    const phone    = document.getElementById('add_phone') ? document.getElementById('add_phone').value.trim() : '';
-    const password = document.getElementById('add_password').value.trim();
-    const role     = document.getElementById('add_role').value;
-    const dept_id  = document.getElementById('add_dept_id').value;
-    const avatarInput = document.getElementById('add_avatar_file');
+    const emp_code      = document.getElementById('add_emp_code').value.trim();
+    const name          = document.getElementById('add_name').value.trim();
+    const phone         = document.getElementById('add_phone') ? document.getElementById('add_phone').value.trim() : '';
+    const birth_date    = document.getElementById('add_birth_date') ? document.getElementById('add_birth_date').value : '';
+    const start_work_date = document.getElementById('add_start_work_date') ? document.getElementById('add_start_work_date').value : '';
+    const password      = document.getElementById('add_password').value.trim();
+    const role          = document.getElementById('add_role').value;
+    const dept_id       = document.getElementById('add_dept_id').value;
+    const avatarInput   = document.getElementById('add_avatar_file');
 
     try {
         // 1. สร้างพนักงานใหม่
@@ -626,7 +639,7 @@ async function handleAddUserSubmit(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'create',
-                emp_code, name, phone, password, role, dept_id
+                emp_code, name, phone, birth_date, start_work_date, password, role, dept_id
             })
         });
 

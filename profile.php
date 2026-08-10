@@ -65,10 +65,15 @@ $empCode  = $_SESSION['emp_code'] ?? '';
             </div>
 
             <h2 id="profileNameDisplay" style="font-size: 1.3rem; margin-bottom: 4px;"><?= htmlspecialchars($userName) ?></h2>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 8px;">
                 รหัสพนักงาน: <strong><?= htmlspecialchars($empCode) ?></strong> | แผนก: <?= htmlspecialchars($deptName) ?>
             </p>
-            <div style="margin-top: 8px;">
+            <div style="display:flex; justify-content:center; gap:12px; font-size:0.82rem; color:var(--text-muted); flex-wrap:wrap; margin-bottom: 10px;">
+                <div><i class="fa-solid fa-cake-candles" style="color:#EC4899;"></i> วันเกิด: <strong id="profileBirthDateDisplay" style="color:var(--text-main);">-</strong></div>
+                <div><i class="fa-solid fa-briefcase" style="color:#3B82F6;"></i> เริ่มงาน: <strong id="profileStartWorkDisplay" style="color:var(--text-main);">-</strong></div>
+                <div><i class="fa-solid fa-award" style="color:#10B981;"></i> อายุงาน: <strong id="profileTenureDisplay" style="color:var(--text-main);">-</strong></div>
+            </div>
+            <div>
                 <span class="badge badge-info"><?= strtoupper($userRole) ?></span>
             </div>
 
@@ -185,6 +190,14 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                 if (phoneInput && u.phone) {
                     phoneInput.value = u.phone;
                 }
+
+                const birthDisp = document.getElementById('profileBirthDateDisplay');
+                const startWorkDisp = document.getElementById('profileStartWorkDisplay');
+                const tenureDisp = document.getElementById('profileTenureDisplay');
+
+                if (birthDisp) birthDisp.textContent = u.birth_date_th + (u.age !== '-' ? ` (${u.age})` : '');
+                if (startWorkDisp) startWorkDisp.textContent = u.start_work_th;
+                if (tenureDisp) tenureDisp.textContent = u.work_tenure;
 
                 if (u.avatar_url && placeholder && img) {
                     img.src = u.avatar_url;
