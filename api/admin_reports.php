@@ -431,16 +431,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 <meta charset="utf-8">
 <title><?= $isSingleEmp && $singleEmpInfo ? "รายงานลงเวลา_{$singleEmpInfo['emp_code']}" : "รายงานการลงเวลาพนักงาน" ?></title>
 <style>
-    body { font-family: 'Angsana New', 'TH Sarabun New', Arial, sans-serif; font-size: 11pt; margin: 15px; background: #fff; color: #000; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 15px; page-break-inside: avoid; }
-    th, td { border: 1px solid #64748B; padding: 4px 6px; text-align: center; font-size: 10pt; }
-    th { background-color: #2563EB; color: #FFFFFF; font-weight: bold; }
-    .banner-title { font-size: 14pt; font-weight: bold; text-align: center; background-color: #CBD5E1; padding: 6px; }
-    .meta-box { background-color: #F1F5F9; font-weight: bold; text-align: left; }
-    .summary-box { background-color: #F8FAFC; font-weight: bold; text-align: left; }
+    body { 
+        font-family: 'Segoe UI', 'Prompt', 'Tahoma', 'Leelawadee UI', Arial, sans-serif; 
+        font-size: 12pt; 
+        margin: 15px; 
+        background: #FFFFFF; 
+        color: #0F172A; 
+    }
+    table { 
+        border-collapse: collapse; 
+        width: 100%; 
+        margin-bottom: 20px; 
+        page-break-inside: avoid; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    th, td { 
+        border: 1px solid #94A3B8; 
+        padding: 8px 10px; 
+        text-align: center; 
+        font-size: 11.5pt; 
+        height: 30px;
+        vertical-align: middle;
+    }
+    th { 
+        background-color: #1E3A8A; 
+        color: #FFFFFF; 
+        font-weight: bold; 
+        font-size: 12pt;
+        height: 36px;
+    }
+    .banner-title { 
+        font-size: 15pt; 
+        font-weight: bold; 
+        text-align: center; 
+        background-color: #1E293B; 
+        color: #FFFFFF; 
+        padding: 12px; 
+        height: 40px;
+    }
+    .meta-box { 
+        background-color: #F1F5F9; 
+        font-weight: bold; 
+        font-size: 12pt;
+        text-align: left; 
+        height: 34px;
+        color: #1E293B;
+    }
+    .summary-box { 
+        background-color: #EFF6FF; 
+        font-weight: bold; 
+        font-size: 12pt;
+        text-align: left; 
+        padding: 10px 14px;
+        height: 36px;
+        border-top: 2px solid #2563EB;
+        color: #1E3A8A;
+    }
     @media print {
         @page { size: A4 portrait; margin: 10mm; }
-        body { margin: 0; }
+        body { margin: 0; font-size: 11pt; }
+        th, td { font-size: 10pt; padding: 6px; height: auto; }
         .no-print { display: none !important; }
     }
 </style>
