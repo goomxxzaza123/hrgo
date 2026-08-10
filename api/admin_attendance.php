@@ -57,23 +57,11 @@ try {
         if ($fullCheckIn && $fullCheckOut) {
             $inTs  = strtotime($fullCheckIn);
             $outTs = strtotime($fullCheckOut);
-
-            if ($outTs < $inTs) {
-                // กรณีกะกลางคืน ข้ามวัน
-                $outTs += 86400;
-            }
-
             $shiftType = $att['shift_type'] ?? 'day';
 
-            if ($shiftType === 'night') {
-                $otTriggerTs = strtotime(date('Y-m-d', strtotime($workDate . ' +1 day')) . ' 08:00:00');
-            } else {
-                $otTriggerTs = strtotime($workDate . ' 20:00:00');
-            }
-
-            $diffSec   = max(0, $outTs - $inTs);
-            $workHours = round(min(8.00, $diffSec / 3600), 2);
-            $otHours   = ($outTs >= $otTriggerTs) ? 3.00 : 0.00;
+            $calcRes   = calculateWorkAndOtHours($pdo, $workDate, $inTs, $outTs, $shiftType);
+            $workHours = $calcRes['work_hours'];
+            $otHours   = $calcRes['ot_hours'];
         }
 
         // คำนวณสายและนาทีสาย (อนุโลม 59 วินาทีแรก ถ้ายังไม่ถึง 08:01:00 / 20:01:00 ถือว่าตรงเวลา)

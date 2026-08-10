@@ -205,3 +205,69 @@ function formatLateText($mins) {
     }
 }
 
+/**
+ * คำนวณชั่วโมงทำงาน (work_hours) และ OT (ot_hours)
+ * - วันธรรมดา (Mon-Sat): work_hours = min(8.00, diff/3600), ot_hours = 3.00 (ถ้า checkout >= otTriggerTs) ไม่เช่นนั้น 0.00
+ * - วันหยุด (อาทิตย์ หรือ วันหยุดบริษัท/นักขัตฤกษ์):
+ *   - ชั่วโมงทำงานปกติ 8.00 ชม. ในวันหยุด ถือเป็น OT วันหยุด = min(8.00, diff/3600)
+ *   - หากเลิกงาน >= 20:00 (หรือ 08:00 กะดึก) จะได้ OT เย็นเพิ่มอีก 3.00 ชม.
+ *   - สรุป: ot_hours = baseWorkedOnHoliday + (checkout >= otTriggerTs ? 3.00 : 0.00)
+ */
+function calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType = 'day') {
+    if (!$checkInTs || !$checkOutTs) {
+        return ['work_hours' => 0.00, 'ot_hours' => 0.00];
+    }
+
+    if ($checkOutTs < $checkInTs) {
+        $checkOutTs += 86400; // กะดึกข้ามวัน
+    }
+
+    $diffSec = max(0, $checkOutTs - $checkInTs);
+    $baseWorkedHours = round(min(8.00, $diffSec / 3600), 2);
+
+    if ($shiftType === 'night') {
+        $otTriggerTs = strtotime(date('Y-m-d', strtotime($workDate . ' +1 day')) . ' 08:00:00');
+    } else {
+        $otTriggerTs = strtotime($workDate . ' 20:00:00');
+    }
+
+    $hasEveningOt = ($checkOutTs >= $otTriggerTs);
+    $eveningOt = $hasEveningOt ? 3.00 : 0.00;
+
+    // ตรวจสอบว่าเป็นวันอาทิตย์ หรือวันหยุดบริษัท/นักขัตฤกษ์ หรือไม่
+    $dayShort = date('D', strtotime($workDate));
+    $isSunday = ($dayShort === 'Sun');
+
+    $isCompanyHoliday = false;
+    if ($pdo) {
+        try {
+            $stmtH = $pdo->prepare("SELECT holiday_id FROM company_holidays WHERE holiday_date = :wdate LIMIT 1");
+            $stmtH->execute([':wdate' => $workDate]);
+            if ($stmtH->fetch()) {
+                $isCompanyHoliday = true;
+            }
+        } catch (Exception $e) {
+            // Ignore error
+        }
+    }
+
+    $isHolidayOrSunday = ($isSunday || $isCompanyHoliday);
+
+    if ($isHolidayOrSunday) {
+        // ในวันหยุด/วันอาทิตย์ เวลาทำงานปกติ 8 ชม. จะถือนับเป็น OT ทั้งหมด
+        // และหากทำงานล่วงเวลาเกิน 20:00 น. จะบวก OT เย็นเพิ่มอีก 3 ชม.
+        $workHours = $baseWorkedHours;
+        $otHours   = round($baseWorkedHours + $eveningOt, 2);
+    } else {
+        // วันทำงานปกติ
+        $workHours = $baseWorkedHours;
+        $otHours   = $eveningOt;
+    }
+
+    return [
+        'work_hours' => $workHours,
+        'ot_hours'   => $otHours
+    ];
+}
+
+

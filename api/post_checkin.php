@@ -177,18 +177,9 @@ try {
         $checkOutTs = strtotime($nowTime);
         $workDate   = date('Y-m-d', $checkInTs);
 
-        if ($shiftType === 'night') {
-            $otTriggerTs = strtotime(date('Y-m-d', strtotime($workDate . ' +1 day')) . ' 08:00:00');
-        } else {
-            $otTriggerTs = strtotime($workDate . ' 20:00:00');
-        }
-
-        // คำนวณชั่วโมงทำงานปกติ (สูงสุด 8.00 ชม.)
-        $diffSec   = max(0, $checkOutTs - $checkInTs);
-        $workHours = round(min(8.00, $diffSec / 3600), 2);
-
-        // กฎ OT: ออกงานตั้งแต่ 20:00 น. เป็นต้นไป (กะเช้า) หรือ 08:00 น. เป็นต้นไป (กะดึก) ตีเป็น OT 3.00 ชม. สุทธิ
-        $otHours = ($checkOutTs >= $otTriggerTs) ? 3.00 : 0.00;
+        $calcRes   = calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType);
+        $workHours = $calcRes['work_hours'];
+        $otHours   = $calcRes['ot_hours'];
 
         $updateStmt = $pdo->prepare("
             UPDATE attendances 
