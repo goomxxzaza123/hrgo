@@ -1024,7 +1024,6 @@ $departments = $stmtDepts->fetchAll();
                 });
                 window.location.href = `../api/admin_reports.php?${query.toString()}`;
             } else {
-            } else {
                 let optionsHtml = '<option value="">-- กรุณาเลือกพนักงาน --</option>';
                 if (globalEmployeesData && globalEmployeesData.length > 0) {
                     globalEmployeesData.forEach(emp => {
