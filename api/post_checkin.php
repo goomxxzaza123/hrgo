@@ -113,12 +113,10 @@ try {
         // บันทึกรูปถ่ายเข้างาน
         $checkInPhoto = saveBase64Photo($photoData, 'checkin', $userId);
 
-        // ดึงข้อมูลกะการทำงานของผู้ใช้จากฐานข้อมูล
-        $userStmt = $pdo->prepare("SELECT shift_type, shift_start_time FROM users WHERE user_id = :id LIMIT 1");
-        $userStmt->execute([':id' => $userId]);
-        $userData = $userStmt->fetch() ?: [];
-        $shiftType = $userData['shift_type'] ?? 'day';
-        $shiftStartStr = $userData['shift_start_time'] ?? ($shiftType === 'night' ? '20:00:00' : '08:00:00');
+        // ดึงข้อมูลกะการทำงานของผู้ใช้ (ลำดับความสำคัญ: ตารางกะ shift_rosters -> กะประจำตัว users)
+        $userShift = getUserShiftForDate($pdo, $userId, $today);
+        $shiftType = $userShift['shift_type'];
+        $shiftStartStr = $userShift['shift_start_time'];
         
         $shiftStartTs  = strtotime($today . ' ' . $shiftStartStr);
         $nowTs         = strtotime($nowTime);
@@ -169,17 +167,15 @@ try {
         // บันทึกรูปถ่ายออกงาน
         $checkOutPhoto = saveBase64Photo($photoData, 'checkout', $userId);
 
-        // ดึงข้อมูลกะการทำงานของผู้ใช้เพื่อคำนวณเวลาทำงานและ OT
-        $stmtUserShift = $pdo->prepare("SELECT shift_type, shift_start_time, shift_end_time, ot_cap_time FROM users WHERE user_id = :user_id LIMIT 1");
-        $stmtUserShift->execute([':user_id' => $userId]);
-        $userShift = $stmtUserShift->fetch();
-
-        $shiftType = $userShift['shift_type'] ?? 'day';
         $checkInTs  = strtotime($attendance['check_in_time']);
         $checkOutTs = strtotime($nowTime);
         $workDate   = date('Y-m-d', $checkInTs);
 
-        $calcRes   = calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType);
+        // ดึงข้อมูลกะการทำงานตามตารางกะหรือกะประจำตัว
+        $userShift = getUserShiftForDate($pdo, $userId, $workDate);
+        $shiftType = $userShift['shift_type'];
+
+        $calcRes   = calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType, $userId);
         $workHours = $calcRes['work_hours'];
         $otHours   = $calcRes['ot_hours'];
 

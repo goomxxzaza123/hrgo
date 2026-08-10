@@ -206,14 +206,88 @@ function formatLateText($mins) {
 }
 
 /**
+ * ดึงข้อมูลกะการทำงาน (Shift) ของพนักงานในวันที่กำหนด
+ * 1. ตรวจสอบตาราง shift_rosters ก่อน
+ * 2. หากไม่มีใน shift_rosters ให้ดึงจากข้อมูลประจำตัวพนักงานในตาราง users
+ * @return array ['shift_type' => 'day'|'night'|'off', 'shift_start_time' => '08:00:00', 'shift_end_time' => '17:00:00', 'is_roster' => bool, 'is_off' => bool]
+ */
+function getUserShiftForDate($pdo, $userId, $workDate) {
+    if (!$pdo || !$userId || !$workDate) {
+        return [
+            'shift_type'       => 'day',
+            'shift_start_time' => '08:00:00',
+            'shift_end_time'   => '17:00:00',
+            'is_roster'        => false,
+            'is_off'           => false
+        ];
+    }
+
+    try {
+        // 1. ลองดึงจากตาราง shift_rosters
+        $stmtRoster = $pdo->prepare("
+            SELECT shift_type, shift_start_time, shift_end_time 
+            FROM shift_rosters 
+            WHERE user_id = :uid AND roster_date = :rdate 
+            LIMIT 1
+        ");
+        $stmtRoster->execute([':uid' => $userId, ':rdate' => $workDate]);
+        $roster = $stmtRoster->fetch();
+
+        if ($roster) {
+            $sType = $roster['shift_type'];
+            $isOff = ($sType === 'off');
+            $sStart = $roster['shift_start_time'] ?? ($sType === 'night' ? '20:00:00' : '08:00:00');
+            $sEnd   = $roster['shift_end_time'] ?? ($sType === 'night' ? '05:00:00' : '17:00:00');
+
+            return [
+                'shift_type'       => $sType,
+                'shift_start_time' => $sStart,
+                'shift_end_time'   => $sEnd,
+                'is_roster'        => true,
+                'is_off'           => $isOff
+            ];
+        }
+    } catch (Exception $e) {
+        // Fallback to user default
+    }
+
+    // 2. ถ้าไม่มีใน shift_rosters ให้ดึงค่ากะประจำตัวจากตาราง users
+    try {
+        $stmtUser = $pdo->prepare("SELECT shift_type, shift_start_time, shift_end_time FROM users WHERE user_id = :uid LIMIT 1");
+        $stmtUser->execute([':uid' => $userId]);
+        $user = $stmtUser->fetch();
+
+        $sType  = $user['shift_type'] ?? 'day';
+        $sStart = $user['shift_start_time'] ?? ($sType === 'night' ? '20:00:00' : '08:00:00');
+        $sEnd   = $user['shift_end_time'] ?? ($sType === 'night' ? '05:00:00' : '17:00:00');
+
+        return [
+            'shift_type'       => $sType,
+            'shift_start_time' => $sStart,
+            'shift_end_time'   => $sEnd,
+            'is_roster'        => false,
+            'is_off'           => false
+        ];
+    } catch (Exception $e) {
+        return [
+            'shift_type'       => 'day',
+            'shift_start_time' => '08:00:00',
+            'shift_end_time'   => '17:00:00',
+            'is_roster'        => false,
+            'is_off'           => false
+        ];
+    }
+}
+
+/**
  * คำนวณชั่วโมงทำงาน (work_hours) และ OT (ot_hours)
  * - วันธรรมดา (Mon-Sat): work_hours = min(8.00, diff/3600), ot_hours = 3.00 (ถ้า checkout >= otTriggerTs) ไม่เช่นนั้น 0.00
- * - วันหยุด (อาทิตย์ หรือ วันหยุดบริษัท/นักขัตฤกษ์):
+ * - วันหยุด (อาทิตย์, วันหยุดบริษัท/นักขัตฤกษ์ หรือ วันหยุดตารางเวร Off):
  *   - ชั่วโมงทำงานปกติ 8.00 ชม. ในวันหยุด ถือเป็น OT วันหยุด = min(8.00, diff/3600)
  *   - หากเลิกงาน >= 20:00 (หรือ 08:00 กะดึก) จะได้ OT เย็นเพิ่มอีก 3.00 ชม.
  *   - สรุป: ot_hours = baseWorkedOnHoliday + (checkout >= otTriggerTs ? 3.00 : 0.00)
  */
-function calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType = 'day') {
+function calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shiftType = 'day', $userId = null) {
     if (!$checkInTs || !$checkOutTs) {
         return ['work_hours' => 0.00, 'ot_hours' => 0.00];
     }
@@ -234,11 +308,13 @@ function calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shif
     $hasEveningOt = ($checkOutTs >= $otTriggerTs);
     $eveningOt = $hasEveningOt ? 3.00 : 0.00;
 
-    // ตรวจสอบว่าเป็นวันอาทิตย์ หรือวันหยุดบริษัท/นักขัตฤกษ์ หรือไม่
+    // ตรวจสอบว่าเป็นวันอาทิตย์ หรือวันหยุดบริษัท/นักขัตฤกษ์ หรือวันหยุดตามตารางเวร (Off) หรือไม่
     $dayShort = date('D', strtotime($workDate));
     $isSunday = ($dayShort === 'Sun');
 
     $isCompanyHoliday = false;
+    $isRosterOff = ($shiftType === 'off');
+
     if ($pdo) {
         try {
             $stmtH = $pdo->prepare("SELECT holiday_id FROM company_holidays WHERE holiday_date = :wdate LIMIT 1");
@@ -249,12 +325,19 @@ function calculateWorkAndOtHours($pdo, $workDate, $checkInTs, $checkOutTs, $shif
         } catch (Exception $e) {
             // Ignore error
         }
+
+        if ($userId && !$isRosterOff) {
+            $shiftInfo = getUserShiftForDate($pdo, $userId, $workDate);
+            if ($shiftInfo['is_off']) {
+                $isRosterOff = true;
+            }
+        }
     }
 
-    $isHolidayOrSunday = ($isSunday || $isCompanyHoliday);
+    $isHolidayOrSunday = ($isSunday || $isCompanyHoliday || $isRosterOff);
 
     if ($isHolidayOrSunday) {
-        // ในวันหยุด/วันอาทิตย์ เวลาทำงานปกติ 8 ชม. จะถือนับเป็น OT ทั้งหมด
+        // ในวันหยุด/วันอาทิตย์/วันหยุดตามตารางเวร เวลาทำงานปกติ 8 ชม. จะถือนับเป็น OT ทั้งหมด
         // และหากทำงานล่วงเวลาเกิน 20:00 น. จะบวก OT เย็นเพิ่มอีก 3 ชม.
         $workHours = $baseWorkedHours;
         $otHours   = round($baseWorkedHours + $eveningOt, 2);

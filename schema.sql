@@ -5,6 +5,7 @@ CREATE DATABASE IF NOT EXISTS hrgo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode
 USE hrgo;
 
 -- Drop existing tables if re-initialising (in reverse order of dependency)
+DROP TABLE IF EXISTS shift_rosters;
 DROP TABLE IF EXISTS leave_balances;
 DROP TABLE IF EXISTS leave_requests;
 DROP TABLE IF EXISTS attendances;

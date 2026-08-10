@@ -17,12 +17,13 @@ try {
 
     // 0. ดึงตั้งค่ากะการทำงานของผู้ใช้
     $stmtShift = $pdo->prepare("SELECT shift_type, shift_start_time, shift_end_time, ot_cap_time FROM users WHERE user_id = :user_id LIMIT 1");
-    $stmtShift->execute([':user_id' => $userId]);
-    $userShift = $stmtShift->fetch();
+    $userShift = getUserShiftForDate($pdo, $userId, $today);
 
-    $shiftLabel = ($userShift['shift_type'] === 'night') 
-        ? 'กะกลางคืน (20:00 - 05:00 น.)' 
-        : 'กะกลางวัน (08:00 - 17:00 น. | OT สูงสุด 20:00 น.)';
+    $shiftLabel = ($userShift['shift_type'] === 'off')
+        ? 'วันหยุดประจำสัปดาห์ / วันหยุดตามตารางกะ'
+        : (($userShift['shift_type'] === 'night') 
+            ? "กะกลางคืน ({$userShift['shift_start_time']} - {$userShift['shift_end_time']} น.)" 
+            : "กะกลางวัน ({$userShift['shift_start_time']} - {$userShift['shift_end_time']} น. | OT สูงสุด 20:00 น.)");
 
     // 1. ดึงข้อมูลการลงเวลาของวันนี้
     $stmtToday = $pdo->prepare("

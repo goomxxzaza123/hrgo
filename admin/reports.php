@@ -177,6 +177,12 @@ $departments = $stmtDepts->fetchAll();
                         <span>จัดการแผนก</span>
                     </a>
                 </li>
+                <li class="sidebar-menu-item">
+                    <a href="manage_roster.php" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-week icon"></i>
+                        <span>จัดตารางกะ (Roster)</span>
+                    </a>
+                </li>
                 <?php endif; ?>
                 <li class="sidebar-menu-item">
                     <a href="reports.php" class="sidebar-link active">
