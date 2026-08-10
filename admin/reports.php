@@ -499,12 +499,14 @@ $departments = $stmtDepts->fetchAll();
         let calendarMonth = 7; // July (1-indexed)
 
         document.addEventListener('DOMContentLoaded', () => {
-            // อ่านค่าเดือนและปีจาก filter_start_date
+            // อ่านค่าเดือนและปีจาก filter_start_date ด้วยการแยกสตริงป้องกัน Timezone shift
             const sDate = document.getElementById('filter_start_date').value;
             if (sDate) {
-                const dt = new Date(sDate);
-                calendarYear = dt.getFullYear();
-                calendarMonth = dt.getMonth() + 1;
+                const parts = sDate.split('-');
+                if (parts.length === 3) {
+                    calendarYear = parseInt(parts[0], 10);
+                    calendarMonth = parseInt(parts[1], 10);
+                }
             }
             loadAttendanceReports();
         });
@@ -753,8 +755,11 @@ $departments = $stmtDepts->fetchAll();
                 dayRecords = dayRecords.filter(r => parseInt(r.user_id) === selectedUserId);
             }
 
-            const dt = new Date(dateStr);
-            const dateTh = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+            let dateTh = dateStr;
+            const dParts = dateStr.split('-');
+            if (dParts.length === 3) {
+                dateTh = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+            }
             document.getElementById('calendarDayModalTitle').textContent = `รายละเอียดการลงเวลาประจำวันที่ ${dateTh}`;
 
             const tbody = document.getElementById('calendarDayModalBody');
