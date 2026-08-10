@@ -122,9 +122,8 @@
   flex-grow: 1;
   padding: 24px 28px;
   width: calc(100% - 240px);
-  max-width: calc(100vw - 240px);
+  max-width: calc(100% - 240px);
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .admin-header {
@@ -266,6 +265,7 @@
     margin-left: 0 !important;
     padding: 16px 12px 24px 12px !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
   }
 
