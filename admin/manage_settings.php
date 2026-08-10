@@ -90,6 +90,12 @@ $userName = $currentUser['name'];
                     </a>
                 </li>
                 <li class="sidebar-menu-item">
+                    <a href="manage_roster.php" class="sidebar-link">
+                        <i class="fa-solid fa-calendar-week icon"></i>
+                        <span>จัดตารางกะ (Roster)</span>
+                    </a>
+                </li>
+                <li class="sidebar-menu-item">
                     <a href="reports.php" class="sidebar-link">
                         <i class="fa-solid fa-file-csv icon"></i>
                         <span>รายงานลงเวลา & CSV</span>
