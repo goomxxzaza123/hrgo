@@ -93,7 +93,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inputData = json_decode(file_get_contents('php://input'), true);
 
     $leaveId = (int)($inputData['leave_id'] ?? $_POST['leave_id'] ?? 0);
-    $action  = trim($inputData['action'] ?? $_POST['action'] ?? ''); // 'approve' หรือ 'reject'
+    $action  = trim($inputData['action'] ?? $_POST['action'] ?? ''); // 'approve', 'reject', หรือ 'create_on_behalf'
+
+    // -------------------------------------------------------------
+    // กรณีที่ 1: Admin / Manager ยื่นขอลางานแทนพนักงาน
+    // -------------------------------------------------------------
+    if ($action === 'create_on_behalf') {
+        $targetUserId = (int)($inputData['user_id'] ?? $_POST['user_id'] ?? 0);
+        $leaveType    = trim($inputData['leave_type'] ?? $_POST['leave_type'] ?? '');
+        $startDate    = trim($inputData['start_date'] ?? $_POST['start_date'] ?? '');
+        $endDate      = trim($inputData['end_date'] ?? $_POST['end_date'] ?? '');
+        $reason       = trim($inputData['reason'] ?? $_POST['reason'] ?? '');
+
+        if (!$targetUserId || empty($leaveType) || empty($startDate) || empty($endDate) || empty($reason)) {
+            sendJsonResponse(false, 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง (เลือกพนักงาน, ประเภทการลา, วันที่เริ่ม, วันที่สิ้นสุด, และเหตุผล)', null, 400);
+        }
+
+        $allowedTypes = ['sick', 'personal', 'vacation'];
+        if (!in_array($leaveType, $allowedTypes)) {
+            sendJsonResponse(false, 'ประเภทการลาไม่ถูกต้อง', null, 400);
+        }
+
+        $start = DateTime::createFromFormat('Y-m-d', $startDate);
+        $end   = DateTime::createFromFormat('Y-m-d', $endDate);
+
+        if (!$start || !$end) {
+            sendJsonResponse(false, 'รูปแบบวันที่ไม่ถูกต้อง', null, 400);
+        }
+
+        if ($start > $end) {
+            sendJsonResponse(false, 'วันที่เริ่มต้นลา ต้องไม่มากกว่า วันที่สิ้นสุดการลา', null, 400);
+        }
+
+        $requestedDays = $start->diff($end)->days + 1;
+
+        try {
+            $pdo->beginTransaction();
+
+            // 1. ดึงพนักงานเป้าหมาย
+            $stmtUser = $pdo->prepare("SELECT user_id, name, emp_code FROM users WHERE user_id = :uid LIMIT 1");
+            $stmtUser->execute([':uid' => $targetUserId]);
+            $targetUser = $stmtUser->fetch();
+
+            if (!$targetUser) {
+                $pdo->rollBack();
+                sendJsonResponse(false, 'ไม่พบพนักงานเป้าหมายในระบบ', null, 404);
+            }
+
+            // 2. ตรวจสอบโควตาคงเหลือ
+            $stmtBal = $pdo->prepare("SELECT total_quota, used_days FROM leave_balances WHERE user_id = :uid AND leave_type = :ltype LIMIT 1 FOR UPDATE");
+            $stmtBal->execute([':uid' => $targetUserId, ':ltype' => $leaveType]);
+            $bal = $stmtBal->fetch();
+
+            $totalQuota = $bal ? (int)$bal['total_quota'] : 0;
+            $usedDays   = $bal ? (int)$bal['used_days'] : 0;
+            $remaining  = max(0, $totalQuota - $usedDays);
+
+            if ($requestedDays > $remaining) {
+                $pdo->rollBack();
+                sendJsonResponse(false, "ไม่สามารถยื่นลาแทนได้ เนื่องจากโควตาคงเหลือของ {$targetUser['name']} ไม่เพียงพอ (ต้องการ $requestedDays วัน แต่คงเหลือ $remaining วัน)", null, 400);
+            }
+
+            // 3. ตรวจสอบวันลาซ้อนทับ
+            $stmtOverlap = $pdo->prepare("
+                SELECT leave_id FROM leave_requests 
+                WHERE user_id = :uid AND status IN ('pending', 'approved')
+                  AND NOT (end_date < :start_date OR start_date > :end_date)
+                LIMIT 1
+            ");
+            $stmtOverlap->execute([':uid' => $targetUserId, ':start_date' => $startDate, ':end_date' => $endDate]);
+            if ($stmtOverlap->fetch()) {
+                $pdo->rollBack();
+                sendJsonResponse(false, "พนักงาน {$targetUser['name']} มีรายการลางานในช่วงวันที่ดังกล่าวอยู่แล้ว", null, 400);
+            }
+
+            // 4. บันทึกคำขอลางานด้วยสถานะ 'approved' ทันที
+            $stmtInsert = $pdo->prepare("
+                INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, reason, status, approved_by) 
+                VALUES (:user_id, :leave_type, :start_date, :end_date, :reason, 'approved', :approved_by)
+            ");
+            $stmtInsert->execute([
+                ':user_id'     => $targetUserId,
+                ':leave_type'  => $leaveType,
+                ':start_date'  => $startDate,
+                ':end_date'    => $endDate,
+                ':reason'      => $reason . " (ยื่นลาแทนโดย " . $currentUser['name'] . ")",
+                ':approved_by' => $currentUser['user_id']
+            ]);
+            $leaveId = $pdo->lastInsertId();
+
+            // 5. ตัดโควตาวันลาทันที
+            $stmtDeduct = $pdo->prepare("
+                UPDATE leave_balances 
+                SET used_days = used_days + :days 
+                WHERE user_id = :uid AND leave_type = :ltype
+            ");
+            $stmtDeduct->execute([
+                ':days'  => $requestedDays,
+                ':uid'   => $targetUserId,
+                ':ltype' => $leaveType
+            ]);
+
+            $pdo->commit();
+
+            sendJsonResponse(true, "ยื่นขอลางานแทน {$targetUser['name']} เรียบร้อยแล้ว (จำนวน $requestedDays วัน) และอนุมัติอัตโนมัติ", [
+                'leave_id'       => $leaveId,
+                'target_name'    => $targetUser['name'],
+                'requested_days' => $requestedDays
+            ]);
+
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            sendJsonResponse(false, 'เกิดข้อผิดพลาดในการยื่นลาแทนพนักงาน: ' . $e->getMessage(), null, 500);
+        }
+    }
 
     if (!$leaveId || !in_array($action, ['approve', 'reject'])) {
         sendJsonResponse(false, 'ข้อมูลไม่ถูกต้อง (กรุณาระบุ leave_id และ action)', null, 400);

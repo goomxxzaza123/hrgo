@@ -663,3 +663,131 @@ function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
+
+/**
+ * -------------------------------------------------------------
+ * Admin / Manager ยื่นขอลางานแทนพนักงาน (Leave On Behalf)
+ * -------------------------------------------------------------
+ */
+async function openAdminLeaveModal() {
+    const modal = document.getElementById('adminLeaveModal');
+    const selectUser = document.getElementById('admin_leave_user_id');
+    if (!modal || !selectUser) return;
+
+    selectUser.innerHTML = '<option value="">-- กำลังโหลดรายชื่อพนักงาน... --</option>';
+    modal.classList.add('active');
+
+    try {
+        const response = await fetch('../api/admin_users.php');
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.users) {
+            let options = '<option value="">-- เลือกพนักงาน --</option>';
+            result.data.users.forEach(u => {
+                options += `<option value="${u.user_id}">${u.emp_code} - ${escapeHtml(u.name)} (${escapeHtml(u.dept_name)})</option>`;
+            });
+            selectUser.innerHTML = options;
+        } else {
+            selectUser.innerHTML = '<option value="">-- ไม่พบรายชื่อพนักงาน --</option>';
+        }
+    } catch (err) {
+        console.error('Error loading employees for leave modal:', err);
+        selectUser.innerHTML = '<option value="">-- เกิดข้อผิดพลาดในการโหลดพนักงาน --</option>';
+    }
+}
+
+function closeAdminLeaveModal() {
+    const modal = document.getElementById('adminLeaveModal');
+    if (modal) modal.classList.remove('active');
+    const form = document.getElementById('adminLeaveForm');
+    if (form) form.reset();
+    const daysDisplay = document.getElementById('adminCalculatedDaysDisplay');
+    if (daysDisplay) daysDisplay.textContent = 'กรุณาเลือกวันที่';
+}
+
+function calculateAdminLeaveDays() {
+    const startVal = document.getElementById('admin_start_date').value;
+    const endVal   = document.getElementById('admin_end_date').value;
+    const display  = document.getElementById('adminCalculatedDaysDisplay');
+
+    if (!startVal || !endVal || !display) return;
+
+    const start = new Date(startVal);
+    const end   = new Date(endVal);
+
+    if (start > end) {
+        display.style.color = '#E74C3C';
+        display.textContent = '⚠️ วันที่เริ่มต้น ต้องไม่มากกว่า วันที่สิ้นสุด';
+        return;
+    }
+
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    display.style.color = 'var(--primary-color)';
+    display.innerHTML = `รวมจำนวนวันลา: <strong>${diffDays} วัน</strong>`;
+}
+
+async function handleAdminLeaveSubmit(e) {
+    e.preventDefault();
+
+    const userId   = document.getElementById('admin_leave_user_id').value;
+    const leaveType = document.getElementById('admin_leave_type').value;
+    const startDate = document.getElementById('admin_start_date').value;
+    const endDate   = document.getElementById('admin_end_date').value;
+    const reason    = document.getElementById('admin_leave_reason').value.trim();
+    const btn       = document.getElementById('adminSubmitLeaveBtn');
+
+    if (!userId || !leaveType || !startDate || !endDate || !reason) {
+        Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลให้ครบทุกช่อง' });
+        return;
+    }
+
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+        }
+
+        const response = await fetch('../api/admin_leave.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create_on_behalf',
+                user_id: userId,
+                leave_type: leaveType,
+                start_date: startDate,
+                end_date: endDate,
+                reason: reason
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'ยื่นลางานแทนพนักงานสำเร็จ!',
+                text: result.message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            closeAdminLeaveModal();
+            loadLeaveApprovals();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'ไม่สามารถยื่นลาแทนได้',
+                text: result.message || 'เกิดข้อผิดพลาดในการบันทึก'
+            });
+        }
+    } catch (err) {
+        console.error('Error submitting admin leave:', err);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้' });
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> บันทึกและอนุมัติทันที';
+        }
+    }
+}

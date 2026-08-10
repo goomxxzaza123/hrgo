@@ -102,7 +102,10 @@ $userRole = strtoupper($currentUser['role']);
                     <h1>ระบบพิจารณาอนุมัติใบลา</h1>
                     <p style="color:var(--text-muted);">จัดการคำขอลางานของพนักงาน (พิจารณาอนุมัติและตัดโควตาอัตโนมัติ)</p>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openAdminLeaveModal()">
+                        <i class="fa-solid fa-user-plus"></i> ยื่นลาแทนพนักงาน
+                    </button>
                     <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
                     <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     <label for="statusFilter" style="font-size:0.9rem; font-weight:500;">ตัวกรอง:</label>
@@ -142,6 +145,61 @@ $userRole = strtoupper($currentUser['role']);
             </div>
 
         </main>
+    </div>
+
+    <!-- Modal: ยื่นลาแทนพนักงาน (Admin / Manager On Behalf) -->
+    <div class="modal-backdrop" id="adminLeaveModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-plus"></i> แบบฟอร์มยื่นลางานแทนพนักงาน</h3>
+                <button type="button" onclick="closeAdminLeaveModal()" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="adminLeaveForm" onsubmit="handleAdminLeaveSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">เลือกพนักงาน</label>
+                    <select id="admin_leave_user_id" class="form-control" required>
+                        <option value="">-- กำลังโหลดรายชื่อพนักงาน... --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ประเภทการลา</label>
+                    <select id="admin_leave_type" class="form-control" required>
+                        <option value="">-- เลือกประเภทการลา --</option>
+                        <option value="sick">ลาป่วย (Sick Leave)</option>
+                        <option value="personal">ลากิจ (Personal Leave)</option>
+                        <option value="vacation">ลาพักร้อน (Vacation Leave)</option>
+                    </select>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label class="form-label">วันที่เริ่มลา</label>
+                        <input type="date" id="admin_start_date" class="form-control" required onchange="calculateAdminLeaveDays()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">วันที่สิ้นสุด</label>
+                        <input type="date" id="admin_end_date" class="form-control" required onchange="calculateAdminLeaveDays()">
+                    </div>
+                </div>
+
+                <div id="adminCalculatedDaysDisplay" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; text-align:right;">
+                    กรุณาเลือกวันที่
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">เหตุผลการลา</label>
+                    <textarea id="admin_leave_reason" class="form-control" placeholder="ระบุเหตุผลการลาแทนพนักงาน..." required style="height:80px;"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                    <button type="button" class="btn btn-outline" onclick="closeAdminLeaveModal()">ยกเลิก</button>
+                    <button type="submit" id="adminSubmitLeaveBtn" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> บันทึกและอนุมัติทันที
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Core Scripts -->
