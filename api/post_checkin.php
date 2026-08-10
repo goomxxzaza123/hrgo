@@ -59,13 +59,13 @@ if ($sysSettings['enable_ip_check'] && !isAllowedOfficeIP($userIP)) {
 $distanceMeters = null;
 if ($sysSettings['enable_location_check']) {
     if (empty($userLat) || empty($userLng)) {
-        // หากพิกัด GPS ไม่ถูกส่งมา (เช่น บนคอมพิวเตอร์ Desktop หรือ GPS หมดเวลา)
-        // และเครื่องอยู่ในวง Wi-Fi/LAN ของบริษัท ให้ใช้พิกัดบริษัทสำรอง
-        if (isAllowedOfficeIP($userIP)) {
+        // หากพิกัด GPS ไม่ถูกส่งมา
+        // กรณีที่เปิดระบบตรวจ IP strictly ($sysSettings['enable_ip_check'] == true) และผู้ใช้อยู่บน IP ออฟฟิศจริง จึงยอมให้ใช้พิกัดออฟฟิศสำรองได้
+        if ($sysSettings['enable_ip_check'] && isAllowedOfficeIP($userIP)) {
             $userLat = $sysSettings['company_lat'];
             $userLng = $sysSettings['company_lng'];
         } else {
-            sendJsonResponse(false, 'กรุณาเปิดการระบุพิกัดตำแหน่ง (GPS) บนอุปกรณ์เพื่อยืนยันว่าอยู่ในพื้นที่ออฟฟิศ', null, 400);
+            sendJsonResponse(false, 'ไม่สามารถยืนยันตำแหน่งได้ กรุณาเปิดพิกัดตำแหน่ง (GPS) บนอุปกรณ์ และอนุญาตการเข้าถึงพิกัดเพื่อลงเวลาเข้างาน', null, 400);
         }
     }
 
@@ -76,9 +76,11 @@ if ($sysSettings['enable_location_check']) {
     $distanceMeters = calculateDistanceMeters($userLat, $userLng, $companyLat, $companyLng);
 
     if ($distanceMeters > $maxMeters) {
-        sendJsonResponse(false, "ไม่อนุญาตให้ลงเวลานอกสถานที่ (พิกัดปัจจุบันของคุณ: Lat {$userLat}, Lng {$userLng} อยู่ห่างจากออฟฟิศ {$distanceMeters} เมตร ซึ่งเกินรัศมีที่อนุญาต {$maxMeters} เมตร)", [
+        sendJsonResponse(false, "ไม่อนุญาตให้ลงเวลานอกสถานที่ (พิกัดของคุณอยู่ห่างจากโรงงาน/ออฟฟิศ {$distanceMeters} เมตร ซึ่งเกินรัศมีที่อนุญาต {$maxMeters} เมตร)", [
             'user_lat'        => $userLat,
             'user_lng'        => $userLng,
+            'company_lat'     => $companyLat,
+            'company_lng'     => $companyLng,
             'distance_meters' => $distanceMeters,
             'max_allowed'     => $maxMeters
         ], 403);

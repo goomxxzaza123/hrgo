@@ -311,9 +311,9 @@ function getGPSLocation() {
                 resolve(null);
             },
             {
-                enableHighAccuracy: false,
-                timeout: 3000,
-                maximumAge: 60000
+                enableHighAccuracy: true,
+                timeout: 8000,
+                maximumAge: 10000
             }
         );
     });
