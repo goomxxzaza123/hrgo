@@ -112,7 +112,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card: สถานะการเข้างานของเพื่อนร่วมทีมวันนี้ (รูปมีสีเมื่อเข้างานแล้ว รูปสีเทาเมื่อยังไม่เข้างาน) -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">สถานะการเข้างานของเพื่อนร่วมทีมวันนี้</div>
+                <div class="card-title"><i class="fa-solid fa-users"></i> สถานะการเข้างานของเพื่อนร่วมทีมวันนี้</div>
             </div>
             <div id="teamColleaguesContainer" class="team-list">
                 <div style="text-align:center; padding:15px; color:var(--text-muted); grid-column: 1 / -1;">
@@ -124,7 +124,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
         <!-- Card: ประวัติการลงเวลางานและชั่วโมง OT สะสมของฉัน -->
         <div class="card">
             <div class="card-header">
-                <div class="card-title">ประวัติการลงเวลาและชั่วโมง OT ของฉัน</div>
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการลงเวลาและชั่วโมง OT ของฉัน</div>
             </div>
 
             <!-- ตัวกรองช่วงวันที่สำหรับพนักงาน -->
@@ -139,7 +139,7 @@ $empCode  = $_SESSION['emp_code'] ?? '';
                         <input type="date" id="personal_end_date" class="form-control" style="font-size:0.82rem; padding:6px 8px;" value="<?= date('Y-m-t') ?>">
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary btn-sm" style="padding:7px 12px;">ค้นหา</button>
+                        <button type="submit" class="btn btn-primary btn-sm" style="padding:7px 12px;"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
                     </div>
                 </div>
             </form>

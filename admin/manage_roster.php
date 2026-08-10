@@ -230,13 +230,13 @@ $userName = $currentUser['name'];
 
                     <div style="display:flex; align-items:center; gap:12px; font-size:0.8rem; flex-wrap:wrap;">
                         <span style="display:flex; align-items:center; gap:4px;">
-                            <span class="shift-badge shift-day">เช้า</span> = 08:00 - 17:00
+                            <span class="shift-badge shift-day"><i class="fa-solid fa-sun"></i> เช้า</span> = 08:00 - 17:00
                         </span>
                         <span style="display:flex; align-items:center; gap:4px;">
-                            <span class="shift-badge shift-night">ดึก</span> = 20:00 - 05:00
+                            <span class="shift-badge shift-night"><i class="fa-solid fa-moon"></i> ดึก</span> = 20:00 - 05:00
                         </span>
                         <span style="display:flex; align-items:center; gap:4px;">
-                            <span class="shift-badge shift-off">หยุด</span> = วันหยุดประจำสัปดาห์ (Off)
+                            <span class="shift-badge shift-off"><i class="fa-solid fa-umbrella-beach"></i> หยุด</span> = วันหยุดประจำสัปดาห์ (Off)
                         </span>
                     </div>
                 </div>

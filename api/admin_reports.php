@@ -498,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 <body>
 <?php if ($isPrint): ?>
 <div class="no-print" style="margin-bottom:15px; text-align:right;">
-    <button onclick="window.print()" style="padding:8px 18px; background:#10B981; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;">🖨️ พิมพ์เอกสาร / เซฟเป็น PDF</button>
+    <button onclick="window.print()" style="padding:8px 18px; background:#10B981; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-print"></i> พิมพ์เอกสาร / เซฟเป็น PDF</button>
 </div>
 <?php endif; ?>
 <?php if ($isSingleEmp && $singleEmpInfo): ?>

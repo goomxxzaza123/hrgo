@@ -1023,7 +1023,7 @@ $departments = $stmtDepts->fetchAll();
                 }
 
                 Swal.fire({
-                    title: '👤 เลือกพนักงานที่ต้องการส่งออกรายงาน',
+                    title: '<i class="fa-solid fa-user-check" style="color:#3B82F6;"></i> เลือกพนักงานที่ต้องการส่งออกรายงาน',
                     html: `
                         <div style="text-align:left; margin-top:10px;">
                             <label class="form-label" style="font-weight:bold; font-size:0.9rem;">รายชื่อพนักงาน:</label>
@@ -1033,7 +1033,7 @@ $departments = $stmtDepts->fetchAll();
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: '📥 ดาวน์โหลด Excel',
+                    confirmButtonText: '<i class="fa-solid fa-file-excel"></i> ดาวน์โหลด Excel',
                     cancelButtonText: 'ยกเลิก',
                     confirmButtonColor: '#10B981',
                     focusConfirm: false,
@@ -1086,7 +1086,7 @@ $departments = $stmtDepts->fetchAll();
                 }
 
                 Swal.fire({
-                    title: '🖨️ เลือกพนักงานที่ต้องการพิมพ์ / เซฟ PDF',
+                    title: '<i class="fa-solid fa-print" style="color:#F59E0B;"></i> เลือกพนักงานที่ต้องการพิมพ์ / เซฟ PDF',
                     html: `
                         <div style="text-align:left; margin-top:10px;">
                             <label class="form-label" style="font-weight:bold; font-size:0.9rem;">รายชื่อพนักงาน:</label>
@@ -1096,7 +1096,7 @@ $departments = $stmtDepts->fetchAll();
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: '🖨️ พิมพ์ / บันทึก PDF',
+                    confirmButtonText: '<i class="fa-solid fa-print"></i> พิมพ์ / บันทึก PDF',
                     cancelButtonText: 'ยกเลิก',
                     confirmButtonColor: '#10B981',
                     focusConfirm: false,
