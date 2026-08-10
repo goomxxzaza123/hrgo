@@ -99,16 +99,18 @@ body {
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
-  background-color: var(--primary-color);
-  color: white;
-  border-radius: 11px;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  color: #FFFFFF !important;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  letter-spacing: 0.02em;
 }
 
 .user-badge {
@@ -799,8 +801,9 @@ textarea.form-control {
 }
 
 [data-theme="dark"] .brand-icon {
-  background: #F8FAFC !important;
-  color: #0F172A !important;
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45) !important;
 }
 
 [data-theme="dark"] .nav-item {
