@@ -32,7 +32,10 @@ $userName = $currentUser['name'];
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
             background: var(--card-bg);
-            max-height: calc(100vh - 220px);
+            max-height: calc(100vh - 230px);
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         .roster-table {
             width: 100%;
@@ -209,21 +212,23 @@ $userName = $currentUser['name'];
             </div>
 
             <!-- Filters Bar -->
-            <div class="card" style="padding: 14px 18px; margin-bottom: 16px;">
-                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <label for="rosterMonth" style="font-weight:600; font-size:0.9rem;">ประจำเดือน:</label>
-                        <input type="month" id="rosterMonth" class="form-control" style="width:auto; padding:6px 12px;" onchange="loadRosterTable()">
+            <div class="card" style="padding: 14px 18px; margin-bottom: 16px; max-width: 100%; box-sizing: border-box;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label for="rosterMonth" style="font-weight:600; font-size:0.9rem;">ประจำเดือน:</label>
+                            <input type="month" id="rosterMonth" class="form-control" style="width:auto; padding:6px 12px;" onchange="loadRosterTable()">
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label for="rosterDept" style="font-weight:600; font-size:0.9rem;">แผนก:</label>
+                            <select id="rosterDept" class="form-control" style="width:auto; padding:6px 12px;" onchange="loadRosterTable()">
+                                <option value="">ทั้งหมดทุกแผนก</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <label for="rosterDept" style="font-weight:600; font-size:0.9rem;">แผนก:</label>
-                        <select id="rosterDept" class="form-control" style="width:auto; padding:6px 12px;" onchange="loadRosterTable()">
-                            <option value="">ทั้งหมดทุกแผนก</option>
-                        </select>
-                    </div>
-
-                    <div style="margin-left:auto; display:flex; align-items:center; gap:14px; font-size:0.8rem;">
+                    <div style="display:flex; align-items:center; gap:12px; font-size:0.8rem; flex-wrap:wrap;">
                         <span style="display:flex; align-items:center; gap:4px;">
                             <span class="shift-badge shift-day">เช้า</span> = 08:00 - 17:00
                         </span>

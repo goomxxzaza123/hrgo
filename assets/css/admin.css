@@ -7,6 +7,8 @@
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-color);
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Sidebar Navigation */
@@ -118,9 +120,11 @@
 .admin-main {
   margin-left: 240px;
   flex-grow: 1;
-  padding: 30px 36px;
-  max-width: 1440px;
+  padding: 24px 28px;
+  width: calc(100% - 240px);
+  max-width: calc(100vw - 240px);
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .admin-header {
