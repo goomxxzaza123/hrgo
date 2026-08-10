@@ -590,7 +590,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     elseif (strpos($rec['status_label'], 'พักร้อน') !== false) $empLeaveBreakdown['vacation']++;
                 } elseif ($rec['status'] === 'late') {
                     $lateCnt++;
-                } else {
+                } elseif ($rec['status'] === 'on_time' || $rec['status'] === 'normal') {
                     $onTimeCnt++;
                 }
             ?>

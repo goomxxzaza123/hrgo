@@ -1014,7 +1014,8 @@ $departments = $stmtDepts->fetchAll();
                 });
                 window.location.href = `../api/admin_reports.php?${query.toString()}`;
             } else {
-                let optionsHtml = '';
+            } else {
+                let optionsHtml = '<option value="">-- กรุณาเลือกพนักงาน --</option>';
                 if (globalEmployeesData && globalEmployeesData.length > 0) {
                     globalEmployeesData.forEach(emp => {
                         optionsHtml += `<option value="${emp.user_id}">${emp.emp_code} - ${escapeHtml(emp.name)} (${escapeHtml(emp.dept_name || '')})</option>`;
@@ -1038,16 +1039,14 @@ $departments = $stmtDepts->fetchAll();
                     focusConfirm: false,
                     preConfirm: () => {
                         const uId = document.getElementById('swalSelectUserId').value;
-                        if (!uId || uId === '0') {
-                            Swal.showValidationMessage('กรุณาเลือกพนักงาน');
+                        if (!uId || uId === '0' || uId === '') {
+                            Swal.showValidationMessage('กรุณาเลือกพนักงานก่อนกดดาวน์โหลด');
                             return false;
                         }
                         return uId;
                     }
                 }).then((res) => {
                     if (res.isConfirmed && res.value) {
-                        if (filterUserIdEl) filterUserIdEl.value = res.value;
-
                         const query = new URLSearchParams({
                             start_date: startDate,
                             end_date: endDate,
@@ -1079,7 +1078,7 @@ $departments = $stmtDepts->fetchAll();
                 });
                 window.open(`../api/admin_reports.php?${query.toString()}`, '_blank');
             } else {
-                let optionsHtml = '';
+                let optionsHtml = '<option value="">-- กรุณาเลือกพนักงานที่ต้องการพิมพ์ --</option>';
                 if (globalEmployeesData && globalEmployeesData.length > 0) {
                     globalEmployeesData.forEach(emp => {
                         optionsHtml += `<option value="${emp.user_id}">${emp.emp_code} - ${escapeHtml(emp.name)} (${escapeHtml(emp.dept_name || '')})</option>`;
@@ -1103,16 +1102,14 @@ $departments = $stmtDepts->fetchAll();
                     focusConfirm: false,
                     preConfirm: () => {
                         const uId = document.getElementById('swalSelectUserIdPrint').value;
-                        if (!uId || uId === '0') {
-                            Swal.showValidationMessage('กรุณาเลือกพนักงาน');
+                        if (!uId || uId === '0' || uId === '') {
+                            Swal.showValidationMessage('กรุณาเลือกพนักงานก่อนกดพิมพ์');
                             return false;
                         }
                         return uId;
                     }
                 }).then((res) => {
                     if (res.isConfirmed && res.value) {
-                        if (filterUserIdEl) filterUserIdEl.value = res.value;
-
                         const query = new URLSearchParams({
                             start_date: startDate,
                             end_date: endDate,
