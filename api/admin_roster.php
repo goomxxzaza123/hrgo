@@ -206,9 +206,9 @@ if ($method === 'POST') {
 
                     // คำนวณประเภทกะตาม Pattern
                     $sType = 'day';
-                    if ($pattern === 'default_5day') {
-                        // จันทร์-ศุกร์ = กะเช้า, เสาร์-อาทิตย์ = วันหยุด (off)
-                        $sType = ($dayOfWeek === 'Sat' || $dayOfWeek === 'Sun') ? 'off' : 'day';
+                    if ($pattern === 'default_6day_night') {
+                        // จันทร์-เสาร์ = กะดึก, อาทิตย์ = วันหยุด (off)
+                        $sType = ($dayOfWeek === 'Sun') ? 'off' : 'night';
                     } elseif ($pattern === 'default_6day') {
                         // จันทร์-เสาร์ = กะเช้า, อาทิตย์ = วันหยุด (off)
                         $sType = ($dayOfWeek === 'Sun') ? 'off' : 'day';

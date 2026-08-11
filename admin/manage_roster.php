@@ -116,6 +116,63 @@ $userName = $currentUser['name'];
             background: #334155;
             color: #94A3B8;
         }
+
+        /* Drag & Drop Employee Selection Styles */
+        .drag-drop-box {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            background: var(--surface-soft);
+            transition: all 0.2s ease;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .drag-drop-box.target {
+            border-color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .drag-drop-box.drag-over {
+            border-color: #10B981 !important;
+            background: rgba(16, 185, 129, 0.12) !important;
+            transform: scale(1.01);
+        }
+        .drag-drop-header {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .drag-drop-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 120px;
+        }
+        .emp-drag-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.15s ease;
+        }
+        .emp-drag-card:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .emp-drag-card:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body>
@@ -251,9 +308,9 @@ $userName = $currentUser['name'];
         </main>
     </div>
 
-    <!-- Modal: จัดกะอัตโนมัติทั้งเดือน (Batch Save Roster) -->
+    <!-- Modal: จัดกะอัตโนมัติประจำเดือน (Batch Save Roster) -->
     <div class="modal-backdrop" id="batchRosterModal" style="z-index: 2000;">
-        <div class="modal-content" style="max-width: 480px;">
+        <div class="modal-content" style="max-width: 540px;">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-wand-magic-sparkles"></i> จัดกะอัตโนมัติประจำเดือน</h3>
                 <button type="button" onclick="closeBatchRosterModal()" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
@@ -265,21 +322,54 @@ $userName = $currentUser['name'];
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">แผนกเป้าหมาย</label>
-                    <select id="batch_dept_id" class="form-control">
-                        <option value="">ทุกแผนก (All Departments)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <label class="form-label">รูปแบบตารางเวร (Shift Pattern)</label>
                     <select id="batch_pattern" class="form-control" required>
-                        <option value="default_5day">ทำงาน 5 วัน (จันทร์-ศุกร์ กะเช้า | เสาร์-อาทิตย์ หยุด)</option>
+                        <option value="default_6day_night">ทำงาน 6 วัน (จันทร์-เสาร์ กะดึก | อาทิตย์ หยุด)</option>
                         <option value="default_6day">ทำงาน 6 วัน (จันทร์-เสาร์ กะเช้า | อาทิตย์ หยุด)</option>
                         <option value="all_day">กะเช้าทุกวัน (จันทร์-อาทิตย์)</option>
                         <option value="all_night">กะดึกทุกวัน (จันทร์-อาทิตย์)</option>
                         <option value="all_off">ตั้งเป็นวันหยุดทั้งหมด</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-users"></i> ขอบเขตพนักงานเป้าหมาย</label>
+                    <div style="display:flex; gap:16px; margin-bottom:10px;">
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.88rem;">
+                            <input type="radio" name="batch_target_mode" value="all" checked onchange="toggleBatchTargetMode('all')">
+                            ทั้งแผนก / พนักงานทุกคน
+                        </label>
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.88rem;">
+                            <input type="radio" name="batch_target_mode" value="individual" onchange="toggleBatchTargetMode('individual')">
+                            ลาก / เลือกรายชื่อพนักงานเฉพาะคน
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="batchDeptGroup">
+                    <label class="form-label">แผนกเป้าหมาย</label>
+                    <select id="batch_dept_id" class="form-control" onchange="refreshBatchEmpLists()">
+                        <option value="">ทุกแผนก (All Departments)</option>
+                    </select>
+                </div>
+
+                <!-- Drag & Drop Individual Selection Container -->
+                <div id="individualDragDropContainer" style="display:none; margin-bottom:16px;">
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px;">
+                        <i class="fa-solid fa-hand-pointer"></i> ลากรายชื่อพนักงานจากซ้ายไปวางฝั่งขวา (หรือคลิกที่ชื่อ) เพื่อเลือกผู้ที่จะใส่กะนี้
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <!-- Left Box: พนักงานทั้งหมด -->
+                        <div class="drag-drop-box" id="poolEmpBox" ondragover="handleEmpDragOver(event)" ondragleave="handleEmpDragLeave(event)" ondrop="handleEmpDrop(event, 'unassigned')">
+                            <div class="drag-drop-header"><i class="fa-solid fa-users"></i> รายชื่อพนักงาน</div>
+                            <div id="poolEmpList" class="drag-drop-list"></div>
+                        </div>
+                        <!-- Right Box: พนักงานที่ถูกเลือก -->
+                        <div class="drag-drop-box target" id="targetEmpBox" ondragover="handleEmpDragOver(event)" ondragleave="handleEmpDragLeave(event)" ondrop="handleEmpDrop(event, 'selected')">
+                            <div class="drag-drop-header"><i class="fa-solid fa-user-check" style="color:#10B981;"></i> เลือกแล้ว (<span id="targetEmpCount">0</span> คน)</div>
+                            <div id="targetEmpList" class="drag-drop-list"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
@@ -470,7 +560,114 @@ $userName = $currentUser['name'];
             }
         }
 
+        let batchTargetMode = 'all'; // 'all' or 'individual'
+        let selectedTargetUserIds = [];
+        let draggedUserId = null;
+
+        function toggleBatchTargetMode(mode) {
+            batchTargetMode = mode;
+            const dragContainer = document.getElementById('individualDragDropContainer');
+            if (mode === 'individual') {
+                dragContainer.style.display = 'block';
+                refreshBatchEmpLists();
+            } else {
+                dragContainer.style.display = 'none';
+            }
+        }
+
+        function refreshBatchEmpLists() {
+            if (!currentRosterData || !currentRosterData.users) return;
+            const deptId = document.getElementById('batch_dept_id').value;
+            
+            // กรองพนักงานตามแผนกที่เลือก
+            let users = currentRosterData.users;
+            if (deptId) {
+                users = users.filter(u => String(u.dept_id) === String(deptId));
+            }
+
+            const poolList = document.getElementById('poolEmpList');
+            const targetList = document.getElementById('targetEmpList');
+            const targetCount = document.getElementById('targetEmpCount');
+
+            if (!poolList || !targetList) return;
+
+            let poolHtml = '';
+            let targetHtml = '';
+            let count = 0;
+
+            users.forEach(u => {
+                const uId = u.user_id;
+                const isSelected = selectedTargetUserIds.includes(uId);
+
+                const cardHtml = `
+                    <div class="emp-drag-card" draggable="true" 
+                         ondragstart="handleEmpDragStart(event, ${uId})" 
+                         onclick="toggleEmpSelection(${uId})"
+                         title="ลาก หรือ คลิกเพื่อเลือก">
+                        <span><strong>${escapeHtml(u.name)}</strong> (${u.emp_code})</span>
+                        <i class="fa-solid ${isSelected ? 'fa-minus' : 'fa-plus'}" style="color:${isSelected ? '#EF4444' : '#10B981'}; font-size:0.75rem;"></i>
+                    </div>
+                `;
+
+                if (isSelected) {
+                    targetHtml += cardHtml;
+                    count++;
+                } else {
+                    poolHtml += cardHtml;
+                }
+            });
+
+            poolList.innerHTML = poolHtml || '<div style="font-size:0.75rem; color:var(--text-muted); padding:8px; text-align:center;">ไม่มีพนักงาน</div>';
+            targetList.innerHTML = targetHtml || '<div style="font-size:0.75rem; color:var(--text-muted); padding:8px; text-align:center;">ยังไม่ได้เลือกพนักงาน<br>(ลากหรือคลิกที่ชื่อเพื่อเลือก)</div>';
+            targetCount.textContent = count;
+        }
+
+        function toggleEmpSelection(userId) {
+            if (selectedTargetUserIds.includes(userId)) {
+                selectedTargetUserIds = selectedTargetUserIds.filter(id => id !== userId);
+            } else {
+                selectedTargetUserIds.push(userId);
+            }
+            refreshBatchEmpLists();
+        }
+
+        function handleEmpDragStart(e, userId) {
+            draggedUserId = userId;
+            e.dataTransfer.setData('text/plain', String(userId));
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleEmpDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleEmpDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleEmpDrop(e, targetType) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const uId = parseInt(draggedUserId || e.dataTransfer.getData('text/plain'));
+            if (!uId) return;
+
+            if (targetType === 'selected') {
+                if (!selectedTargetUserIds.includes(uId)) {
+                    selectedTargetUserIds.push(uId);
+                }
+            } else if (targetType === 'unassigned') {
+                selectedTargetUserIds = selectedTargetUserIds.filter(id => id !== uId);
+            }
+            refreshBatchEmpLists();
+        }
+
         function openBatchRosterModal() {
+            selectedTargetUserIds = [];
+            const modes = document.querySelectorAll('input[name="batch_target_mode"]');
+            if (modes.length > 0) modes[0].checked = true;
+            toggleBatchTargetMode('all');
             document.getElementById('batchRosterModal').classList.add('active');
         }
 
@@ -485,19 +682,31 @@ $userName = $currentUser['name'];
             const pattern = document.getElementById('batch_pattern').value;
             const btn = document.getElementById('batchSubmitBtn');
 
+            if (batchTargetMode === 'individual' && selectedTargetUserIds.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาเลือกพนักงาน', text: 'กรุณาลากหรือเลือกพนักงานอย่างน้อย 1 คนสำหรับจัดกะนี้' });
+                return;
+            }
+
             try {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
 
+                const payload = {
+                    action: 'batch_save',
+                    month,
+                    pattern
+                };
+
+                if (batchTargetMode === 'individual') {
+                    payload.target_user_ids = selectedTargetUserIds;
+                } else {
+                    payload.dept_id = deptId;
+                }
+
                 const res = await fetch('../api/admin_roster.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'batch_save',
-                        month,
-                        dept_id: deptId,
-                        pattern
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const result = await res.json();
