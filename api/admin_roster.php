@@ -184,8 +184,18 @@ if ($method === 'POST') {
                 sendJsonResponse(false, 'ไม่พบพนักงานเป้าหมายสำหรับจัดกะ', null, 404);
             }
 
-            $startDate   = $monthStr . '-01';
-            $daysInMonth = (int)date('t', strtotime($startDate));
+            $startDateInput = trim($inputData['start_date'] ?? '');
+            $endDateInput   = trim($inputData['end_date'] ?? '');
+
+            if (!empty($startDateInput) && !empty($endDateInput)) {
+                $startObj = new DateTime($startDateInput);
+                $endObj   = new DateTime($endDateInput);
+            } else {
+                $startDate   = $monthStr . '-01';
+                $daysInMonth = (int)date('t', strtotime($startDate));
+                $startObj    = new DateTime($startDate);
+                $endObj      = new DateTime($monthStr . '-' . sprintf('%02d', $daysInMonth));
+            }
 
             $stmtUpsert = $pdo->prepare("
                 INSERT INTO shift_rosters (user_id, roster_date, shift_type, shift_start_time, shift_end_time, created_by)
@@ -200,9 +210,10 @@ if ($method === 'POST') {
             $savedCount = 0;
 
             foreach ($targetUsers as $uId) {
-                for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $curDateStr = $monthStr . '-' . sprintf('%02d', $day);
-                    $dayOfWeek  = date('D', strtotime($curDateStr)); // 'Mon', 'Tue', ..., 'Sun'
+                $cur = clone $startObj;
+                while ($cur <= $endObj) {
+                    $curDateStr = $cur->format('Y-m-d');
+                    $dayOfWeek  = $cur->format('D'); // 'Mon', 'Tue', ..., 'Sun'
 
                     // คำนวณประเภทกะตาม Pattern
                     $sType = 'day';
@@ -224,15 +235,17 @@ if ($method === 'POST') {
                     $sEnd   = ($sType === 'off') ? null : ($sType === 'night' ? '05:00:00' : '17:00:00');
 
                     $stmtUpsert->execute([
-                        ':user_id'         => $uId,
-                        ':roster_date'      => $curDateStr,
-                        ':shift_type'       => $sType,
-                        ':shift_start_time' => $sStart,
-                        ':shift_end_time'   => $sEnd,
-                        ':created_by'       => $currentUser['user_id']
+                        ':user_id'          => $uId,
+                        ':roster_date'       => $curDateStr,
+                        ':shift_type'        => $sType,
+                        ':shift_start_time'  => $sStart,
+                        ':shift_end_time'    => $sEnd,
+                        ':created_by'        => $currentUser['user_id']
                     ]);
                     $savedCount++;
                     recalculateAttendanceOnShiftChange($pdo, $uId, $curDateStr);
+
+                    $cur->modify('+1 day');
                 }
             }
 

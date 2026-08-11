@@ -317,8 +317,47 @@ $userName = $currentUser['name'];
             </div>
             <form id="batchRosterForm" onsubmit="handleBatchRosterSubmit(event)">
                 <div class="form-group">
+                    <label class="form-label"><i class="fa-solid fa-calendar-range"></i> ขอบเขตช่วงเวลาการจัดกะ</label>
+                    <div style="display:flex; gap:16px; margin-bottom:10px;">
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.88rem;">
+                            <input type="radio" name="batch_date_mode" value="month" checked onchange="toggleBatchDateMode('month')">
+                            จัดกะเต็มเดือน (Full Month)
+                        </label>
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.88rem;">
+                            <input type="radio" name="batch_date_mode" value="custom" onchange="toggleBatchDateMode('custom')">
+                            ระบุช่วงวันที่ / หมุนเวียน 2 สัปดาห์
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="monthInputGroup">
                     <label class="form-label">เดือนที่ต้องการจัดกะ</label>
-                    <input type="month" id="batch_month" class="form-control" required>
+                    <input type="month" id="batch_month" class="form-control" required onchange="handleBatchMonthChange()">
+                </div>
+
+                <!-- Custom Date Range Controls for 2-Week Rotation -->
+                <div id="customDateRangeContainer" style="display:none; background:var(--surface-soft); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:16px;">
+                    <div style="font-size:0.82rem; font-weight:600; margin-bottom:8px; color:var(--text-main);">
+                        <i class="fa-solid fa-clock-rotate-left"></i> ระบุช่วงวันที่สำหรับกะนี้ (เช่น 2 สัปดาห์ / 14 วัน):
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <div>
+                            <label class="form-label" style="font-size:0.78rem;">วันที่เริ่มต้น</label>
+                            <input type="date" id="batch_start_date" class="form-control" style="font-size:0.85rem; padding:6px 10px;">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:0.78rem;">วันที่สิ้นสุด</label>
+                            <input type="date" id="batch_end_date" class="form-control" style="font-size:0.85rem; padding:6px 10px;">
+                        </div>
+                    </div>
+
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">ปุ่มเลือกช่วงเวลาด่วน (Quick Presets):</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        <button type="button" class="btn btn-outline btn-sm" style="font-size:0.75rem; padding:3px 8px;" onclick="applyBatchDatePreset('week2_1')">⚡ 2 สัปดาห์แรก (วันที่ 1 - 14)</button>
+                        <button type="button" class="btn btn-outline btn-sm" style="font-size:0.75rem; padding:3px 8px;" onclick="applyBatchDatePreset('week2_2')">⚡ 2 สัปดาห์หลัง (วันที่ 15 - 28)</button>
+                        <button type="button" class="btn btn-outline btn-sm" style="font-size:0.75rem; padding:3px 8px;" onclick="applyBatchDatePreset('half1')">🗓️ ครึ่งแรก (วันที่ 1 - 15)</button>
+                        <button type="button" class="btn btn-outline btn-sm" style="font-size:0.75rem; padding:3px 8px;" onclick="applyBatchDatePreset('half2')">🗓️ ครึ่งหลัง (วันที่ 16 - สิ้นเดือน)</button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -561,8 +600,51 @@ $userName = $currentUser['name'];
         }
 
         let batchTargetMode = 'all'; // 'all' or 'individual'
+        let batchDateMode = 'month'; // 'month' or 'custom'
         let selectedTargetUserIds = [];
         let draggedUserId = null;
+
+        function toggleBatchDateMode(mode) {
+            batchDateMode = mode;
+            const rangeBox = document.getElementById('customDateRangeContainer');
+            if (mode === 'custom') {
+                rangeBox.style.display = 'block';
+                applyBatchDatePreset('week2_1');
+            } else {
+                rangeBox.style.display = 'none';
+            }
+        }
+
+        function handleBatchMonthChange() {
+            if (batchDateMode === 'custom') {
+                applyBatchDatePreset('week2_1');
+            }
+        }
+
+        function applyBatchDatePreset(presetType) {
+            const monthVal = document.getElementById('batch_month').value;
+            if (!monthVal) return;
+            const [yr, mo] = monthVal.split('-');
+            const year = parseInt(yr, 10);
+            const month = parseInt(mo, 10);
+            
+            const lastDayNum = new Date(year, month, 0).getDate();
+            const padM = String(month).padStart(2, '0');
+
+            if (presetType === 'half1') {
+                document.getElementById('batch_start_date').value = `${year}-${padM}-01`;
+                document.getElementById('batch_end_date').value = `${year}-${padM}-15`;
+            } else if (presetType === 'half2') {
+                document.getElementById('batch_start_date').value = `${year}-${padM}-16`;
+                document.getElementById('batch_end_date').value = `${year}-${padM}-${String(lastDayNum).padStart(2, '0')}`;
+            } else if (presetType === 'week2_1') {
+                document.getElementById('batch_start_date').value = `${year}-${padM}-01`;
+                document.getElementById('batch_end_date').value = `${year}-${padM}-14`;
+            } else if (presetType === 'week2_2') {
+                document.getElementById('batch_start_date').value = `${year}-${padM}-15`;
+                document.getElementById('batch_end_date').value = `${year}-${padM}-28`;
+            }
+        }
 
         function toggleBatchTargetMode(mode) {
             batchTargetMode = mode;
@@ -665,9 +747,15 @@ $userName = $currentUser['name'];
 
         function openBatchRosterModal() {
             selectedTargetUserIds = [];
-            const modes = document.querySelectorAll('input[name="batch_target_mode"]');
-            if (modes.length > 0) modes[0].checked = true;
+            
+            const dateModes = document.querySelectorAll('input[name="batch_date_mode"]');
+            if (dateModes.length > 0) dateModes[0].checked = true;
+            toggleBatchDateMode('month');
+
+            const targetModes = document.querySelectorAll('input[name="batch_target_mode"]');
+            if (targetModes.length > 0) targetModes[0].checked = true;
             toggleBatchTargetMode('all');
+
             document.getElementById('batchRosterModal').classList.add('active');
         }
 
@@ -687,6 +775,14 @@ $userName = $currentUser['name'];
                 return;
             }
 
+            const startDate = (batchDateMode === 'custom') ? document.getElementById('batch_start_date').value : '';
+            const endDate   = (batchDateMode === 'custom') ? document.getElementById('batch_end_date').value : '';
+
+            if (batchDateMode === 'custom' && (!startDate || !endDate)) {
+                Swal.fire({ icon: 'warning', title: 'กรุณาระบุช่วงวันที่', text: 'กรุณาใส่วันที่เริ่มต้นและวันที่สิ้นสุด' });
+                return;
+            }
+
             try {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
@@ -696,6 +792,11 @@ $userName = $currentUser['name'];
                     month,
                     pattern
                 };
+
+                if (batchDateMode === 'custom') {
+                    payload.start_date = startDate;
+                    payload.end_date = endDate;
+                }
 
                 if (batchTargetMode === 'individual') {
                     payload.target_user_ids = selectedTargetUserIds;
@@ -711,7 +812,7 @@ $userName = $currentUser['name'];
 
                 const result = await res.json();
                 if (res.ok && result.success) {
-                    Swal.fire({ icon: 'success', title: 'จัดกะอัตโนมัติสำเร็จ!', text: result.message, timer: 1800, showConfirmButton: false });
+                    Swal.fire({ icon: 'success', title: 'จัดกะเรียบร้อยแล้ว!', text: result.message, timer: 1800, showConfirmButton: false });
                     closeBatchRosterModal();
                     loadRosterTable();
                 } else {
