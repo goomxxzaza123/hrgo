@@ -109,11 +109,11 @@ $userRole = strtoupper($currentUser['role']);
                     <p style="color:var(--text-muted);">จัดการคำขอลางานของพนักงาน (พิจารณาอนุมัติและตัดโควตาอัตโนมัติ)</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
+                    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     <button type="button" class="btn btn-primary btn-sm" onclick="openAdminLeaveModal()">
                         <i class="fa-solid fa-user-plus"></i> ยื่นลาแทนพนักงาน
                     </button>
-                    <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
-                    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     <label for="statusFilter" style="font-size:0.9rem; font-weight:500;">ตัวกรอง:</label>
                     <select id="statusFilter" class="form-control" style="width: auto; padding: 6px 12px;">
                         <option value="">ทั้งหมด (All)</option>

@@ -257,14 +257,14 @@ $userName = $currentUser['name'];
                     <p style="color:var(--text-muted);">จัดการกะงานรายวัน (กะเช้า / กะดึก / วันหยุด) และกำหนดตารางเวรพนักงานรายเดือน</p>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
+                    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                     <button type="button" class="btn btn-primary btn-sm" onclick="openBatchRosterModal()">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> จัดกะอัตโนมัติทั้งเดือน
                     </button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="confirmClearMonthRoster()" style="color:var(--danger-color); border-color:var(--danger-color);">
                         <i class="fa-solid fa-trash-can"></i> ล้างกะเดือนนี้
                     </button>
-                    <button type="button" class="mobile-toggle-btn btn btn-outline btn-sm" onclick="toggleMobileSidebar()">☰ เมนู</button>
-                    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()"></button>
                 </div>
             </div>
 
